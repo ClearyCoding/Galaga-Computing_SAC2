@@ -6,6 +6,7 @@ import pygame
 import random
 
 highScores = {}
+sizeMultiplier = 2.5
 
 # Initialize Pygame
 pygame.init()
@@ -42,6 +43,8 @@ class Game:
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
+                    if event.key == pygame.K_SPACE:
+                        self.player.shoot()
 
             # Reset Screen
             screen.fill((0, 0, 0))
@@ -55,6 +58,14 @@ class Game:
 
             # Draw Player
             self.player.tick()
+
+            print(len(self.player.missiles))
+            # Draw Missiles
+            for i in range(len(self.player.missiles) - 1, -1, -1):
+                if self.player.missiles[i].y_coord < 3:
+                    del self.player.missiles[i]
+                else:
+                    self.player.missiles[i].tick()
 
             # Refresh Screen
             pygame.display.flip()
@@ -91,14 +102,15 @@ class Player:
     def __init__(self):
         self.lives = 0
         self.fighters = 1
-        self.sizeMultiplier = 2.5
-        self.height = 19 * self.sizeMultiplier
-        self.width = 15 * self.sizeMultiplier
+        self.height = 19 * sizeMultiplier
+        self.width = 15 * sizeMultiplier
 
         self.x_coord = screen_width / 2 - self.width / 2
         self.y_coord = screen_height - 80
         self.shotsFired = 0
         self.hits = 0
+
+        self.missiles = []
 
         self.image = pygame.image.load('assets/player.png')
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
@@ -119,11 +131,26 @@ class Player:
             if self.x_coord < screen_width - self.width - 20:
                 self.x_coord += self.width / 3.5
 
+    def shoot(self):
+        self.missiles.append(Missile(self.x_coord + self.width / 2))
+
 
 class Missile:
-    def __init__(self):
-        self.x_coord = 0
-        self.y_coord = 0
+    def __init__(self, x_coord):
+        self.x_coord = x_coord
+        self.y_coord = screen_height - 100
+
+        self.width = 3 * sizeMultiplier
+        self.height = 8 * sizeMultiplier
+
+        self.image = pygame.image.load('assets/missile.png')
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+
+    def tick(self):
+        if self.y_coord > 3:
+            self.y_coord -= 7
+
+        screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord))
 
 
 myGame = Game()
