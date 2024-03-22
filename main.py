@@ -75,6 +75,7 @@ class Game:
                                 enemy].width / 2 + self.player.missiles[missile].width / 2 and abs(
                                 self.enemies[enemy].y_coord - self.player.missiles[missile].y_coord) < self.enemies[
                                 enemy].height / 2 + self.player.missiles[missile].height / 2:
+                            self.enemies[enemy].death_sound.play()
                             del self.enemies[enemy]
                             del self.player.missiles[missile]
                     except IndexError:
@@ -89,13 +90,16 @@ class Game:
         pygame.quit()
 
     def spawn_enemies(self):
+        key = [[3, 4, 5, 6], [1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8],
+               [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
         for row in range(5):
             for column in range(10):
-                species = [2, 1, 1, 0, 0][row]
-                y_coord = 45 * (row + 2)
-                x_coord = 50 * (column + 1)
+                if column in key[row]:
+                    species = [2, 1, 1, 0, 0][row]
+                    y_coord = 60 + (45 * row)
+                    x_coord = 97.5 + (45 * column)
 
-                self.enemies.append(Enemy(species, x_coord, y_coord))
+                    self.enemies.append(Enemy(species, x_coord, y_coord))
 
 
 class Star:
@@ -129,10 +133,11 @@ class Star:
 
 class Player:
     def __init__(self):
-        self.lives = 0
+        self.lives = 3
         self.fighters = 1
+        self.skin = 0
         self.height = 19 * sizeMultiplier
-        self.width = 15 * sizeMultiplier
+        self.width = 15 * sizeMultiplier * self.fighters
 
         self.x_coord = screen_width / 2 - self.width / 2
         self.y_coord = screen_height - 80
@@ -142,7 +147,7 @@ class Player:
         self.missiles = []
         self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
 
-        self.image = pygame.image.load('assets/player1.png')
+        self.image = pygame.image.load([['assets/player0a.png', 'assets/player0b.png'], ['assets/player1a.png', 'assets/player1b.png']][self.skin][self.fighters - 1])
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def tick(self):
@@ -155,15 +160,19 @@ class Player:
 
     def move(self, direction):
         if direction == -1:
-            if self.x_coord > 0 + 20:
-                self.x_coord -= self.width / 3.5
+            if self.x_coord > 0 + 10 + self.width / 2:
+                self.x_coord -= 8
         if direction == 1:
-            if self.x_coord < screen_width - self.width - 20:
-                self.x_coord += self.width / 3.5
+            if self.x_coord < screen_width - self.width - 10 - self.width / 2:
+                self.x_coord += 8
 
     def shoot(self):
         self.firing_sound.play()
-        self.missiles.append(Missile(self.x_coord + self.width / 2))
+        if self.fighters == 1:
+            self.missiles.append(Missile(self.x_coord + self.width / 2))
+        elif self.fighters == 2:
+            self.missiles.append(Missile((self.x_coord + self.width / 4) + self.width / 2))
+            self.missiles.append(Missile((self.x_coord - self.width / 4)+ self.width / 2))
 
 
 class Missile:
@@ -179,7 +188,7 @@ class Missile:
 
     def tick(self):
         if self.y_coord > 3:
-            self.y_coord -= 7
+            self.y_coord -= 13
 
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord))
 
@@ -190,6 +199,7 @@ class Enemy:
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.tick_delay = 0
+        self.death_sound = pygame.mixer.Sound('assets/sounds/kill.mp3')
 
         self.width = sizeMultiplier * [13, 13, 15, 15][self.species]
         self.height = sizeMultiplier * [10, 10, 16, 16][self.species]
