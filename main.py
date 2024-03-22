@@ -136,8 +136,7 @@ class Star:
 class Player:
     def __init__(self):
         self.lives = 3
-        self.fighters = 1
-        self.skin = 0
+        self.fighters = 2
         self.height = 15 * sizeMultiplier
         self.width = 15 * sizeMultiplier * self.fighters
 
@@ -149,8 +148,7 @@ class Player:
         self.missiles = []
         self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
 
-        self.image = pygame.image.load([['assets/player0a.png', 'assets/player0b.png'],
-                                        ['assets/player1a.png', 'assets/player1b.png']][self.skin][self.fighters - 1])
+        self.image = pygame.image.load(['assets/player0a.png', 'assets/player0b.png'][self.fighters - 1])
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def tick(self):
@@ -202,14 +200,14 @@ class Enemy:
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.tick_delay = 0
-        self.health = [1, 1, 2, 2][species]
+        self.health = [1, 1, 2][self.species]
         self.death_sound = pygame.mixer.Sound('assets/sounds/kill.mp3')
 
-        self.width = sizeMultiplier * [13, 13, 15, 15][self.species]
-        self.height = sizeMultiplier * [10, 10, 16, 16][self.species]
+        self.width = sizeMultiplier * [13, 13, 15][self.species]
+        self.height = sizeMultiplier * [10, 10, 16][self.species]
 
         self.image = pygame.image.load(['assets/enemy0a.png', 'assets/enemy1a.png',
-                                        'assets/enemy2a.png', 'assets/enemy3a.png'][self.species])
+                                        ['assets/enemy2c.png', 'assets/enemy2a.png'][self.health - 1]][self.species])
         self.animated = False
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
@@ -220,10 +218,10 @@ class Enemy:
 
         if self.animated:
             self.image = pygame.image.load(['assets/enemy0b.png', 'assets/enemy1b.png',
-                                            'assets/enemy2b.png', 'assets/enemy3b.png'][self.species])
+                                            ['assets/enemy2d.png', 'assets/enemy2b.png'][self.health - 1]][self.species])
         else:
             self.image = pygame.image.load(['assets/enemy0a.png', 'assets/enemy1a.png',
-                                            'assets/enemy2a.png', 'assets/enemy3a.png'][self.species])
+                                            ['assets/enemy2c.png', 'assets/enemy2a.png'][self.health - 1]][self.species])
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord))
