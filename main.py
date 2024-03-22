@@ -75,9 +75,11 @@ class Game:
                                 enemy].width / 2 + self.player.missiles[missile].width / 2 and abs(
                                 self.enemies[enemy].y_coord - self.player.missiles[missile].y_coord) < self.enemies[
                                 enemy].height / 2 + self.player.missiles[missile].height / 2:
-                            self.enemies[enemy].death_sound.play()
-                            del self.enemies[enemy]
                             del self.player.missiles[missile]
+                            self.enemies[enemy].health -= 1
+                            if self.enemies[enemy].health <= 0:
+                                self.enemies[enemy].death_sound.play()
+                                del self.enemies[enemy]
                     except IndexError:
                         continue
 
@@ -135,7 +137,7 @@ class Player:
     def __init__(self):
         self.lives = 3
         self.fighters = 1
-        self.skin = 1
+        self.skin = 0
         self.height = 15 * sizeMultiplier
         self.width = 15 * sizeMultiplier * self.fighters
 
@@ -147,7 +149,8 @@ class Player:
         self.missiles = []
         self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
 
-        self.image = pygame.image.load([['assets/player0a.png', 'assets/player0b.png'], ['assets/player1a.png', 'assets/player1b.png']][self.skin][self.fighters - 1])
+        self.image = pygame.image.load([['assets/player0a.png', 'assets/player0b.png'],
+                                        ['assets/player1a.png', 'assets/player1b.png']][self.skin][self.fighters - 1])
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def tick(self):
@@ -172,7 +175,7 @@ class Player:
             self.missiles.append(Missile(self.x_coord + self.width / 2))
         elif self.fighters == 2:
             self.missiles.append(Missile((self.x_coord + self.width / 4) + self.width / 2))
-            self.missiles.append(Missile((self.x_coord - self.width / 4)+ self.width / 2))
+            self.missiles.append(Missile((self.x_coord - self.width / 4) + self.width / 2))
 
 
 class Missile:
@@ -199,6 +202,7 @@ class Enemy:
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.tick_delay = 0
+        self.health = [1, 1, 2, 2][species]
         self.death_sound = pygame.mixer.Sound('assets/sounds/kill.mp3')
 
         self.width = sizeMultiplier * [13, 13, 15, 15][self.species]
