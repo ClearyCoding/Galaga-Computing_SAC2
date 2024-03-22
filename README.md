@@ -15,8 +15,3 @@
     <a href="https://github.com/ClearyCoding/Computing-SAC1/issues">Request Feature</a>
   </p>
 </p>
-
-![Contributors](https://img.shields.io/github/contributors/ClearyCoding/Computing-SAC2?color=dark-green) 
-![Stargazers](https://img.shields.io/github/stars/ClearyCoding/Computing-SAC2) 
-![Issues](https://img.shields.io/github/issues/ClearyCoding/Computing-SAC2) 
-![License](https://img.shields.io/github/license/ClearyCoding/Computing-SAC2)
