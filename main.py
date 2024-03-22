@@ -135,8 +135,8 @@ class Player:
     def __init__(self):
         self.lives = 3
         self.fighters = 1
-        self.skin = 0
-        self.height = 19 * sizeMultiplier
+        self.skin = 1
+        self.height = 15 * sizeMultiplier
         self.width = 15 * sizeMultiplier * self.fighters
 
         self.x_coord = screen_width / 2 - self.width / 2
