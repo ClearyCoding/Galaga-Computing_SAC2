@@ -136,7 +136,7 @@ class Star:
 class Player:
     def __init__(self):
         self.lives = 3
-        self.fighters = 2
+        self.fighters = 1
         self.height = 15 * sizeMultiplier
         self.width = 15 * sizeMultiplier * self.fighters
 
@@ -169,11 +169,12 @@ class Player:
 
     def shoot(self):
         self.firing_sound.play()
-        if self.fighters == 1:
-            self.missiles.append(Missile(self.x_coord + self.width / 2))
-        elif self.fighters == 2:
-            self.missiles.append(Missile((self.x_coord + self.width / 4) + self.width / 2))
-            self.missiles.append(Missile((self.x_coord - self.width / 4) + self.width / 2))
+        if len(self.missiles) < 2 * self.fighters:
+            if self.fighters == 1:
+                self.missiles.append(Missile(self.x_coord + self.width / 2))
+            elif self.fighters == 2:
+                self.missiles.append(Missile((self.x_coord + self.width / 4) + self.width / 2))
+                self.missiles.append(Missile((self.x_coord - self.width / 4) + self.width / 2))
 
 
 class Missile:
@@ -189,7 +190,7 @@ class Missile:
 
     def tick(self):
         if self.y_coord > 3:
-            self.y_coord -= 13
+            self.y_coord -= 20
 
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord))
 
@@ -218,10 +219,12 @@ class Enemy:
 
         if self.animated:
             self.image = pygame.image.load(['assets/enemy0b.png', 'assets/enemy1b.png',
-                                            ['assets/enemy2d.png', 'assets/enemy2b.png'][self.health - 1]][self.species])
+                                            ['assets/enemy2d.png', 'assets/enemy2b.png'][self.health - 1]]
+                                           [self.species])
         else:
             self.image = pygame.image.load(['assets/enemy0a.png', 'assets/enemy1a.png',
-                                            ['assets/enemy2c.png', 'assets/enemy2a.png'][self.health - 1]][self.species])
+                                            ['assets/enemy2c.png', 'assets/enemy2a.png'][self.health - 1]]
+                                           [self.species])
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord))
