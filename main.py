@@ -13,7 +13,7 @@ screen_height = 800
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Galactic Invaders")
 pygame.mouse.set_visible(False)
-window_icon = pygame.image.load('assets/player.png')
+window_icon = pygame.image.load('assets/icon.png')
 pygame.display.set_icon(window_icon)
 
 
@@ -46,15 +46,17 @@ class Player:
     def __init__(self):
         self.lives = 0
         self.fighters = 1
-        self.size = 50
+        self.sizeMultiplier = 3
+        self.height = 19 * self.sizeMultiplier
+        self.width = 15 * self.sizeMultiplier
 
-        self.xCoord = screen_width / 2 - self.size / 2
+        self.xCoord = screen_width / 2 - self.width / 2
         self.yCoord = screen_height - 80
         self.shotsFired = 0
         self.hits = 0
 
         self.image = pygame.image.load('assets/player.png')
-        self.image = pygame.transform.scale(self.image, (self.size, self.size))
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def tick(self):
         keys = pygame.key.get_pressed()
@@ -67,10 +69,10 @@ class Player:
     def move(self, direction):
         if direction == -1:
             if self.xCoord > 0 + 20:
-                self.xCoord -= self.size / 4
+                self.xCoord -= self.width / 4
         if direction == 1:
-            if self.xCoord < screen_width - self.size - 20:
-                self.xCoord += self.size / 4
+            if self.xCoord < screen_width - self.width - 20:
+                self.xCoord += self.width / 4
 
 
 myGame = Game()

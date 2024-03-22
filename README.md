@@ -1,7 +1,7 @@
 <br/>
 <p align="center">
   <a href="https://github.com/ClearyCoding/Computing-SAC2">
-    <img src="assets/player.png" alt="Logo" width="80" height="80">
+    <img src="assets/icon.png" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">Computing 1/2 SAC #2</h3>
