@@ -24,11 +24,11 @@ class Game:
         self.level = 0
         self.player = Player()
         self.stars = []
-        self.enemies = [Enemy(0)]
+        self.enemies = []
         self.clock = pygame.time.Clock()
         self.tps = 30
 
-        for i in range(0, 200):
+        for star in range(0, 200):
             self.stars.append(Star())
 
     def run(self):
@@ -51,33 +51,51 @@ class Game:
             screen.fill((0, 0, 0))
 
             # Draw Stars
-            for i in range(0, len(self.stars)):
-                if self.stars[i].y_coord > screen_height - 3:
-                    self.stars[i].regenerate()
+            for star in range(0, len(self.stars)):
+                if self.stars[star].y_coord > screen_height - 3:
+                    self.stars[star].regenerate()
                 else:
-                    self.stars[i].tick()
+                    self.stars[star].tick()
 
             # Draw Player
             self.player.tick()
 
             # Draw Missiles
-            for i in range(len(self.player.missiles) - 1, -1, -1):
-                if self.player.missiles[i].y_coord < 3:
-                    del self.player.missiles[i]
+            for missile in range(len(self.player.missiles) - 1, -1, -1):
+                if self.player.missiles[missile].y_coord < 3:
+                    del self.player.missiles[missile]
                 else:
-                    self.player.missiles[i].tick()
+                    self.player.missiles[missile].tick()
 
             # Draw Enemies
-            for i in range(len(self.enemies) - 1, -1, -1):
-                if self.enemies[i].y_coord < 3:
-                    del self.enemies[i]
-                else:
-                    self.enemies[i].tick()
+            for enemy in range(len(self.enemies) - 1, -1, -1):
+                for missile in range(len(self.player.missiles) - 1, -1, -1):
+                    try:
+                        if abs(self.enemies[enemy].x_coord - self.player.missiles[missile].x_coord) < self.enemies[
+                                enemy].width / 2 + self.player.missiles[missile].width / 2 and abs(
+                                self.enemies[enemy].y_coord - self.player.missiles[missile].y_coord) < self.enemies[
+                                enemy].height / 2 + self.player.missiles[missile].height / 2:
+                            del self.enemies[enemy]
+                            del self.player.missiles[missile]
+                    except IndexError:
+                        continue
+
+            for enemy in range(len(self.enemies)):
+                self.enemies[enemy].tick()
 
             # Refresh Screen
             pygame.display.flip()
 
         pygame.quit()
+
+    def spawn_enemies(self):
+        for row in range(5):
+            for column in range(10):
+                species = [2, 1, 1, 0, 0][row]
+                y_coord = 45 * (row + 2)
+                x_coord = 50 * (column + 1)
+
+                self.enemies.append(Enemy(species, x_coord, y_coord))
 
 
 class Star:
@@ -167,16 +185,14 @@ class Missile:
 
 
 class Enemy:
-    def __init__(self, species):
+    def __init__(self, species=0, x_coord=screen_width/2, y_coord=60):
         self.species = species
-        self.x_coord = screen_width / 2
-        self.y_coord = 60
+        self.x_coord = x_coord
+        self.y_coord = y_coord
         self.tick_delay = 0
 
         self.width = sizeMultiplier * [13, 13, 15, 15][self.species]
-        print(self.width)
         self.height = sizeMultiplier * [10, 10, 16, 16][self.species]
-        print(self.height)
 
         self.image = pygame.image.load(['assets/enemy0a.png', 'assets/enemy1a.png',
                                         'assets/enemy2a.png', 'assets/enemy3a.png'][self.species])
@@ -200,4 +216,5 @@ class Enemy:
 
 
 myGame = Game()
+myGame.spawn_enemies()
 myGame.run()
