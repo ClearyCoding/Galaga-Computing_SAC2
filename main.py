@@ -24,6 +24,7 @@ class Game:
         self.level = 0
         self.player = Player()
         self.stars = []
+        self.enemies = [Enemy(0)]
         self.clock = pygame.time.Clock()
         self.tps = 30
 
@@ -65,6 +66,13 @@ class Game:
                     del self.player.missiles[i]
                 else:
                     self.player.missiles[i].tick()
+
+            # Draw Enemies
+            for i in range(len(self.enemies) - 1, -1, -1):
+                if self.enemies[i].y_coord < 3:
+                    del self.enemies[i]
+                else:
+                    self.enemies[i].tick()
 
             # Refresh Screen
             pygame.display.flip()
@@ -155,6 +163,39 @@ class Missile:
         if self.y_coord > 3:
             self.y_coord -= 7
 
+        screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord))
+
+
+class Enemy:
+    def __init__(self, species):
+        self.species = species
+        self.x_coord = screen_width / 2
+        self.y_coord = 60
+        self.tick_delay = 0
+
+        self.width = sizeMultiplier * [13, 13, 15, 15][self.species]
+        print(self.width)
+        self.height = sizeMultiplier * [10, 10, 16, 16][self.species]
+        print(self.height)
+
+        self.image = pygame.image.load(['assets/enemy0a.png', 'assets/enemy1a.png',
+                                        'assets/enemy2a.png', 'assets/enemy3a.png'][self.species])
+        self.animated = False
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+
+    def tick(self):
+        self.tick_delay += 1
+        if self.tick_delay % 15 == 0:
+            self.animated = not self.animated
+
+        if self.animated:
+            self.image = pygame.image.load(['assets/enemy0b.png', 'assets/enemy1b.png',
+                                            'assets/enemy2b.png', 'assets/enemy3b.png'][self.species])
+        else:
+            self.image = pygame.image.load(['assets/enemy0a.png', 'assets/enemy1a.png',
+                                            'assets/enemy2a.png', 'assets/enemy3a.png'][self.species])
+
+        self.image = pygame.transform.scale(self.image, (self.width, self.height))
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord))
 
 
