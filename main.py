@@ -52,13 +52,12 @@ class Game:
             # Draw Stars
             for i in range(0, len(self.stars)):
                 if self.stars[i].y_coord > screen_height - 3:
-                    self.stars[i].y_coord = 0
+                    self.stars[i].regenerate()
                 else:
                     self.stars[i].tick()
 
             # Draw Player
             self.player.tick()
-
 
             # Draw Missiles
             for i in range(len(self.player.missiles) - 1, -1, -1):
@@ -96,6 +95,10 @@ class Star:
         else:
             self.image.fill((0, 0, 0))
         screen.blit(self.image, (self.x_coord, self.y_coord))
+
+    def regenerate(self):
+        self.y_coord = 0
+        self.x_coord = random.randint(0, screen_width)
 
 
 class Player:
