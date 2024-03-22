@@ -59,7 +59,7 @@ class Game:
             # Draw Player
             self.player.tick()
 
-            print(len(self.player.missiles))
+
             # Draw Missiles
             for i in range(len(self.player.missiles) - 1, -1, -1):
                 if self.player.missiles[i].y_coord < 3:
@@ -111,6 +111,7 @@ class Player:
         self.hits = 0
 
         self.missiles = []
+        self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
 
         self.image = pygame.image.load('assets/player.png')
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
@@ -132,6 +133,7 @@ class Player:
                 self.x_coord += self.width / 3.5
 
     def shoot(self):
+        self.firing_sound.play()
         self.missiles.append(Missile(self.x_coord + self.width / 2))
 
 
