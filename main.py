@@ -116,7 +116,7 @@ class Player:
         self.missiles = []
         self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
 
-        self.image = pygame.image.load('assets/player.png')
+        self.image = pygame.image.load('assets/player1.png')
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def tick(self):
