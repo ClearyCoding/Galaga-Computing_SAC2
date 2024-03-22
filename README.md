@@ -7,7 +7,12 @@
   <h3 align="center">Computing 1/2 SAC #2</h3>
 
   <p align="center">
-    Alexander Cleary
+    By Alexander Cleary
+    <br/>
+    <br/>
+    Dependencies: 
+    <br/>
+    - pygame
     <br/>
     <br/>
     <a href="https://github.com/ClearyCoding/Computing-SAC1/issues">Report Bug</a>
