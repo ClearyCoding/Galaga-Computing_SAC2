@@ -23,9 +23,10 @@ pygame.display.set_icon(window_icon)
 class Game:
     def __init__(self):
         self.level = 0
-        self.player = Player()
+        self.player = Player(self)
         self.stars = []
         self.enemies = []
+        self.enemy_missiles = []
         self.explosions = []
         self.clock = pygame.time.Clock()
         self.tps = 30
@@ -82,8 +83,13 @@ class Game:
 
             # Draw Missiles
             for missile in self.player.missiles:
-                if missile.y_coord < 3:
+                if missile.y_coord < 3 or missile.y_coord > screen_height:
                     self.player.missiles.remove(missile)
+                else:
+                    missile.tick()
+            for missile in self.enemy_missiles:
+                if missile.y_coord < 3 or missile.y_coord > screen_height:
+                    self.enemy_missiles.remove(missile)
                 else:
                     missile.tick()
 
@@ -176,13 +182,14 @@ class Star:
 
 
 class Player:
-    def __init__(self):
+    def __init__(self, game=None):
         self.lives_remaining = 2
         self.level = 1
         self.fighters = 1
         self.height = 16 * sizeMultiplier
         self.fighter_width = 15 * sizeMultiplier
         self.width = self.fighter_width * self.fighters
+        self.game = game
 
         self.x_coord = screen_width / 2 - self.width / 2
         self.y_coord = screen_height - 80
@@ -201,6 +208,7 @@ class Player:
             self.move(-1)
         if keys[pygame.K_RIGHT]:
             self.move(1)
+        self.check_collision()
         for fighter in range(self.fighters):
             screen.blit(self.image, (self.x_coord + self.fighter_width * fighter, self.y_coord - self.height / 2))
 
@@ -216,7 +224,21 @@ class Player:
         if len(self.missiles) < 2 * self.fighters:
             self.firing_sound.play()
             for fighter in range(self.fighters):
-                self.missiles.append(Missile(self.x_coord + self.fighter_width / 2 + fighter * self.fighter_width))
+                self.missiles.append(Missile(self.x_coord + self.fighter_width / 2 + fighter * self.fighter_width,
+                                             self.y_coord, "player"))
+
+    def check_collision(self):
+        for missile in self.game.enemy_missiles:
+            if (abs(self.x_coord + self.width / 2 - missile.x_coord) <
+                    self.width / 2 + missile.width / 2 and abs(
+                        self.y_coord - missile.y_coord) <
+                    self.height / 2 + missile.height / 2):
+                self.game.enemy_missiles.remove(missile)
+                self.die()
+
+    def die(self):
+        self.lives_remaining -= 1
+        # TODO:
 
     def add_fighters(self, operator=1):
         self.fighters += operator
@@ -224,19 +246,26 @@ class Player:
 
 
 class Missile:
-    def __init__(self, x_coord):
+    def __init__(self, x_coord, y_coord, team="player"):
         self.x_coord = x_coord
-        self.y_coord = screen_height - 80
+        self.y_coord = y_coord
+        self.team = team
 
         self.width = 3 * sizeMultiplier
         self.height = 8 * sizeMultiplier
 
-        self.image = pygame.image.load('assets/missile_player.png')
+        if self.team == "player":
+            self.image = pygame.image.load('assets/missile_player.png')
+        elif self.team == "enemy":
+            self.image = pygame.image.load('assets/missile_enemy.png')
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def tick(self):
         if self.y_coord > 3:
-            self.y_coord -= 30
+            if self.team == "player":
+                self.y_coord -= 30
+            elif self.team == "enemy":
+                self.y_coord += 30
 
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
@@ -252,6 +281,7 @@ class Enemy:
         self.death_sound = pygame.mixer.Sound(['assets/sounds/enemy_death_a.mp3', 'assets/sounds/enemy_death_b.mp3',
                                                'assets/sounds/enemy_death_c.mp3'][self.species])
         self.hurt_sound = pygame.mixer.Sound('assets/sounds/enemy_hurt.mp3')
+        self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
 
         self.width = sizeMultiplier * [13, 13, 15][self.species]
         self.height = sizeMultiplier * [10, 10, 16][self.species]
@@ -277,6 +307,8 @@ class Enemy:
                                            [self.species])
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        if random.randint(1, 1000) == 1:
+            self.shoot()
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
     def check_collision(self):
@@ -291,6 +323,10 @@ class Enemy:
                     self.die()
                 else:
                     self.hurt_sound.play()
+
+    def shoot(self):
+        self.firing_sound.play()
+        self.game.enemy_missiles.append(Missile(self.x_coord, self.y_coord, "enemy"))
 
     def die(self):
         self.death_sound.play()
