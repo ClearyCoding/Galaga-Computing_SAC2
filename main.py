@@ -185,6 +185,7 @@ class Player:
     def __init__(self, game=None):
         self.lives_remaining = 2
         self.level = 1
+        self.score = 0
         self.fighters = 1
         self.height = 16 * sizeMultiplier
         self.fighter_width = 15 * sizeMultiplier
@@ -240,6 +241,8 @@ class Player:
     def die(self):
         self.lives_remaining -= 1
         self.death_sound.play()
+        self.game.explosions.append(Explosion(
+            self.x_coord + self.width, self.y_coord + self.height / 2, "player", self.game))
         # TODO: Add Player Death Code
 
     def add_fighters(self, operator=1):
@@ -278,6 +281,7 @@ class Enemy:
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.game = game
+        self.diving = False
         self.tick_delay = 0
         self.health = [1, 1, 2][self.species]
         self.death_sound = pygame.mixer.Sound(['assets/sounds/enemy_death_a.mp3', 'assets/sounds/enemy_death_b.mp3',
@@ -329,35 +333,51 @@ class Enemy:
         self.game.enemy_missiles.append(Missile(self.x_coord, self.y_coord, "enemy"))
 
     def die(self):
+        self.game.player.score += [[50, 100], [80, 160], [150, 400]][self.species][self.diving]
         self.death_sound.play()
-        self.game.explosions.append(Explosion(self.x_coord + self.width / 2, self.y_coord + self.height / 2, self.game))
+        self.game.explosions.append(Explosion(
+            self.x_coord + self.width / 2, self.y_coord + self.height / 2, "enemy", self.game))
         if self in self.game.enemies:
             self.game.enemies.remove(self)
 
 
 class Explosion:
-    def __init__(self, x_coord, y_coord, game):
+    def __init__(self, x_coord, y_coord, target, game):
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.game = game
         self.tick_delay = 0
         self.animation = 0
-        self.size = 32
-        self.image = pygame.image.load(['assets/explosion0.png', 'assets/explosion1.png', 'assets/explosion2.png',
-                                        'assets/explosion3.png', 'assets/explosion4.png']
-                                       [math.floor(self.tick_delay / 3)])
+        self.target = target
+        if self.target == "player":
+            self.size = 64
+            self.image = pygame.image.load('assets/player_explosion0.png')
+            self.animation_speed = 6
+            self.size_shift = 1.25
+        elif self.target == "enemy":
+            self.size = 32
+            self.image = pygame.image.load('assets/explosion0.png')
+            self.animation_speed = 3
+            self.size_shift = 1
 
     def tick(self):
         self.tick_delay += 1
-        self.animation = math.floor(self.tick_delay / 3)
+        self.animation = math.floor(self.tick_delay / self.animation_speed)
         if self.animation > 4:
             self.game.explosions.remove(self)
         else:
-            self.image = pygame.image.load(['assets/explosion0.png', 'assets/explosion1.png', 'assets/explosion2.png',
-                                            'assets/explosion3.png', 'assets/explosion4.png']
-                                           [self.animation])
+            if self.target == "player":
+                self.image = pygame.image.load(
+                    ['assets/player_explosion0.png', 'assets/player_explosion1.png', 'assets/player_explosion2.png',
+                     'assets/player_explosion3.png', 'assets/player_explosion3.png']
+                    [self.animation])
+            elif self.target == "enemy":
+                self.image = pygame.image.load(
+                    ['assets/explosion0.png', 'assets/explosion1.png', 'assets/explosion2.png',
+                     'assets/explosion3.png', 'assets/explosion4.png']
+                    [self.animation])
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
-        screen.blit(self.image, (self.x_coord - self.size, self.y_coord - self.size))
+        screen.blit(self.image, (self.x_coord - self.size / self.size_shift, self.y_coord - self.size / self.size_shift))
 
 
 myGame = Game()
