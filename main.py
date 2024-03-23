@@ -31,6 +31,22 @@ class Game:
         self.tps = 30
 
         self.icon_lives = pygame.image.load('assets/player.png')
+        self.badge_sizes = [[7, 12], [7, 14], [13, 14], [15, 16], [15, 16], [15, 16]]
+        for badge in range(len(self.badge_sizes)):
+            for size in range(2):
+                self.badge_sizes[badge][size] = self.badge_sizes[badge][size] * sizeMultiplier
+        self.icon_badge1 = pygame.image.load('assets/badge1.png')
+        self.icon_badge1 = pygame.transform.scale(self.icon_badge1, (self.badge_sizes[0][0], self.badge_sizes[0][1]))
+        self.icon_badge5 = pygame.image.load('assets/badge5.png')
+        self.icon_badge5 = pygame.transform.scale(self.icon_badge5, (self.badge_sizes[1][0], self.badge_sizes[1][1]))
+        self.icon_badge10 = pygame.image.load('assets/badge10.png')
+        self.icon_badge10 = pygame.transform.scale(self.icon_badge10, (self.badge_sizes[2][0], self.badge_sizes[2][1]))
+        self.icon_badge20 = pygame.image.load('assets/badge20.png')
+        self.icon_badge20 = pygame.transform.scale(self.icon_badge20, (self.badge_sizes[3][0], self.badge_sizes[3][1]))
+        self.icon_badge30 = pygame.image.load('assets/badge30.png')
+        self.icon_badge30 = pygame.transform.scale(self.icon_badge30, (self.badge_sizes[4][0], self.badge_sizes[4][1]))
+        self.icon_badge50 = pygame.image.load('assets/badge50.png')
+        self.icon_badge50 = pygame.transform.scale(self.icon_badge50, (self.badge_sizes[5][0], self.badge_sizes[5][1]))
 
         for star in range(0, 200):
             self.stars.append(Star())
@@ -103,6 +119,32 @@ class Game:
             screen.blit(self.icon_lives, (10 + (life * (self.player.fighter_width + 10)), screen_height -
                                           self.player.height - 10))
 
+        margin_right = 10
+        for i in range(math.floor(self.player.level / 50)):
+            screen.blit(self.icon_badge50, (screen_width - margin_right - self.badge_sizes[5][0],
+                                            screen_height - 10 - self.badge_sizes[5][1]))
+            margin_right += self.badge_sizes[5][0] + 3
+        for i in range(math.floor(self.player.level % 50 / 30)):
+            screen.blit(self.icon_badge30, (screen_width - margin_right - self.badge_sizes[4][0],
+                                            screen_height - 10 - self.badge_sizes[4][1]))
+            margin_right += self.badge_sizes[4][0] + 3
+        for i in range(math.floor(self.player.level % 50 % 30 / 20)):
+            screen.blit(self.icon_badge20, (screen_width - margin_right - self.badge_sizes[3][0],
+                                            screen_height - 10 - self.badge_sizes[3][1]))
+            margin_right += self.badge_sizes[3][0] + 3
+        for i in range(math.floor(self.player.level % 50 % 30 % 20 / 10)):
+            screen.blit(self.icon_badge10, (screen_width - margin_right - self.badge_sizes[2][0],
+                                            screen_height - 10 - self.badge_sizes[2][1]))
+            margin_right += self.badge_sizes[2][0] + 3
+        for i in range(math.floor(self.player.level % 50 % 30 % 20 % 10 / 5)):
+            screen.blit(self.icon_badge5, (screen_width - margin_right - self.badge_sizes[1][0],
+                                           screen_height - 10 - self.badge_sizes[1][1]))
+            margin_right += self.badge_sizes[1][0] + 3
+        for i in range(math.floor(self.player.level % 50 % 30 % 20 % 10 % 5)):
+            screen.blit(self.icon_badge1, (screen_width - margin_right - self.badge_sizes[0][0],
+                                           screen_height - 10 - self.badge_sizes[0][1]))
+            margin_right += self.badge_sizes[0][0] + 3
+
 
 class Star:
     def __init__(self):
@@ -138,7 +180,7 @@ class Player:
         self.lives_remaining = 2
         self.level = 1
         self.fighters = 1
-        self.height = 15 * sizeMultiplier
+        self.height = 16 * sizeMultiplier
         self.fighter_width = 15 * sizeMultiplier
         self.width = self.fighter_width * self.fighters
 
@@ -189,7 +231,7 @@ class Missile:
         self.width = 3 * sizeMultiplier
         self.height = 8 * sizeMultiplier
 
-        self.image = pygame.image.load('assets/missile.png')
+        self.image = pygame.image.load('assets/missile_player.png')
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def tick(self):
