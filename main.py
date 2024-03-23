@@ -30,6 +30,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.tps = 30
 
+        self.icon_lives = pygame.image.load('assets/player.png')
+
         for star in range(0, 200):
             self.stars.append(Star())
 
@@ -76,6 +78,8 @@ class Game:
             for explosion in self.explosions:
                 explosion.tick()
 
+            self.tick_gui()
+
             # Refresh Screen
             pygame.display.flip()
 
@@ -92,6 +96,12 @@ class Game:
                     x_coord = 97.5 + (45 * column)
 
                     self.enemies.append(Enemy(species, x_coord, y_coord, self))
+
+    def tick_gui(self):
+        for life in range(self.player.lives_remaining):
+            self.icon_lives = pygame.transform.scale(self.icon_lives, (self.player.fighter_width, self.player.height))
+            screen.blit(self.icon_lives, (10 + (life * (self.player.fighter_width + 10)), screen_height -
+                                          self.player.height - 10))
 
 
 class Star:
@@ -125,7 +135,8 @@ class Star:
 
 class Player:
     def __init__(self):
-        self.lives = 3
+        self.lives_remaining = 2
+        self.level = 1
         self.fighters = 1
         self.height = 15 * sizeMultiplier
         self.fighter_width = 15 * sizeMultiplier
