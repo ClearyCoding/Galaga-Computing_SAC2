@@ -121,7 +121,7 @@ class Star:
 class Player:
     def __init__(self):
         self.lives = 3
-        self.fighters = 10
+        self.fighters = 1
         self.height = 15 * sizeMultiplier
         self.fighter_width = 15 * sizeMultiplier
         self.width = self.fighter_width * self.fighters
@@ -134,8 +134,8 @@ class Player:
         self.missiles = []
         self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
 
-        self.image = pygame.image.load(['assets/player0a.png', 'assets/player0b.png', 'assets/player0c.png'][self.fighters - 1])
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        self.image = pygame.image.load('assets/player.png')
+        self.image = pygame.transform.scale(self.image, (self.fighter_width, self.height))
 
     def tick(self):
         keys = pygame.key.get_pressed()
@@ -143,7 +143,8 @@ class Player:
             self.move(-1)
         if keys[pygame.K_RIGHT]:
             self.move(1)
-        screen.blit(self.image, (self.x_coord, self.y_coord))
+        for fighter in range(self.fighters):
+            screen.blit(self.image, (self.x_coord + self.fighter_width * fighter, self.y_coord))
 
     def move(self, direction):
         if direction == -1:
@@ -158,6 +159,10 @@ class Player:
             self.firing_sound.play()
             for fighter in range(self.fighters):
                 self.missiles.append(Missile(self.x_coord + self.fighter_width / 2 + fighter * self.fighter_width))
+
+    def add_fighters(self, operator=1):
+        self.fighters += operator
+        self.x_coord -= operator * (self.fighter_width / 2)
 
 
 class Missile:
