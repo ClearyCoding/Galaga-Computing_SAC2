@@ -206,10 +206,10 @@ class Player:
 
     def move(self, direction):
         if direction == -1:
-            if self.x_coord > 0 + 10 + self.width / 2:
+            if self.x_coord > 0 + 10:
                 self.x_coord -= 8
         if direction == 1:
-            if self.x_coord < screen_width - self.width - 10 - self.width / 2:
+            if self.x_coord < screen_width - self.width - 10:
                 self.x_coord += 8
 
     def shoot(self):
@@ -269,11 +269,11 @@ class Enemy:
 
         if self.animated:
             self.image = pygame.image.load(['assets/enemy0b.png', 'assets/enemy1b.png',
-                                            ['assets/enemy2d.png', 'assets/enemy2b.png'][self.health - 1]]
+                                            ['assets/enemy2b.png', 'assets/enemy2d.png'][self.health < 2]]
                                            [self.species])
         else:
             self.image = pygame.image.load(['assets/enemy0a.png', 'assets/enemy1a.png',
-                                            ['assets/enemy2c.png', 'assets/enemy2a.png'][self.health - 1]]
+                                            ['assets/enemy2a.png', 'assets/enemy2c.png'][self.health < 2]]
                                            [self.species])
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
