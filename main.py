@@ -198,6 +198,7 @@ class Player:
 
         self.missiles = []
         self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
+        self.death_sound = pygame.mixer.Sound('assets/sounds/death_player.mp3')
 
         self.image = pygame.image.load('assets/player.png')
         self.image = pygame.transform.scale(self.image, (self.fighter_width, self.height))
@@ -238,7 +239,8 @@ class Player:
 
     def die(self):
         self.lives_remaining -= 1
-        # TODO:
+        self.death_sound.play()
+        # TODO: Add Player Death Code
 
     def add_fighters(self, operator=1):
         self.fighters += operator
@@ -281,7 +283,6 @@ class Enemy:
         self.death_sound = pygame.mixer.Sound(['assets/sounds/enemy_death_a.mp3', 'assets/sounds/enemy_death_b.mp3',
                                                'assets/sounds/enemy_death_c.mp3'][self.species])
         self.hurt_sound = pygame.mixer.Sound('assets/sounds/enemy_hurt.mp3')
-        self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
 
         self.width = sizeMultiplier * [13, 13, 15][self.species]
         self.height = sizeMultiplier * [10, 10, 16][self.species]
@@ -325,7 +326,6 @@ class Enemy:
                     self.hurt_sound.play()
 
     def shoot(self):
-        self.firing_sound.play()
         self.game.enemy_missiles.append(Missile(self.x_coord, self.y_coord, "enemy"))
 
     def die(self):
