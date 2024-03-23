@@ -80,6 +80,8 @@ class Game:
                             if self.enemies[enemy].health <= 0:
                                 self.enemies[enemy].death_sound.play()
                                 del self.enemies[enemy]
+                            else:
+                                self.enemies[enemy].hurt_sound.play()
                     except IndexError:
                         continue
 
@@ -108,7 +110,7 @@ class Star:
     def __init__(self):
         self.x_coord = random.randint(0, screen_width)
         self.y_coord = random.randint(0, screen_height)
-        self.colour = [random.randint(0, 150), random.randint(0, 150), random.randint(0, 150)]
+        self.colour = [random.randint(0, 128), random.randint(0, 128), random.randint(0, 128)]
         self.display_colour = random.choice([True, False])
         self.tick_delay = random.randint(0, 4)
 
@@ -116,7 +118,7 @@ class Star:
 
     def tick(self):
         if self.y_coord < screen_height:
-            self.y_coord += 7
+            self.y_coord += 10
 
         self.tick_delay += 1
         if self.tick_delay % 5 == 0:
@@ -168,11 +170,12 @@ class Player:
                 self.x_coord += 8
 
     def shoot(self):
-        self.firing_sound.play()
         if len(self.missiles) < 2 * self.fighters:
             if self.fighters == 1:
+                self.firing_sound.play()
                 self.missiles.append(Missile(self.x_coord + self.width / 2))
             elif self.fighters == 2:
+                self.firing_sound.play()
                 self.missiles.append(Missile((self.x_coord + self.width / 4) + self.width / 2))
                 self.missiles.append(Missile((self.x_coord - self.width / 4) + self.width / 2))
 
@@ -202,7 +205,9 @@ class Enemy:
         self.y_coord = y_coord
         self.tick_delay = 0
         self.health = [1, 1, 2][self.species]
-        self.death_sound = pygame.mixer.Sound('assets/sounds/kill.mp3')
+        self.death_sound = pygame.mixer.Sound(['assets/sounds/enemy_death_a.mp3', 'assets/sounds/enemy_death_b.mp3',
+                                               'assets/sounds/enemy_death_c.mp3'][self.species])
+        self.hurt_sound = pygame.mixer.Sound('assets/sounds/enemy_hurt.mp3')
 
         self.width = sizeMultiplier * [13, 13, 15][self.species]
         self.height = sizeMultiplier * [10, 10, 16][self.species]
