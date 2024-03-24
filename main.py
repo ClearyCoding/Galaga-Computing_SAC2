@@ -304,6 +304,7 @@ class Missile:
         self.y_coord = y_coord
         self.team = team
         self.game = game
+        self.ticking = True
 
         self.width = 3 * sizeMultiplier
         self.height = 8 * sizeMultiplier
@@ -315,13 +316,30 @@ class Missile:
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
     def tick(self):
-        if self.y_coord > 3:
-            if self.team == "player":
-                self.y_coord -= 30
-            elif self.team == "enemy":
-                self.y_coord += 30
+        if self.ticking:
+            self.check_collision()
+            if self.y_coord > 3:
+                if self.team == "player":
+                    self.y_coord -= 30
+                elif self.team == "enemy":
+                    self.y_coord += 30
 
-        screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
+            screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
+
+    def check_collision(self):
+        if self.team == "player":
+            for enemy in self.game.enemies:
+                if (abs(self.x_coord - enemy.x_coord) <
+                        self.width / 2 + enemy.width / 2 and abs(
+                            self.y_coord - enemy.y_coord) <
+                        self.height / 2 + enemy.height / 2):
+                    self.ticking = False
+                    enemy.health -= 1
+                    if enemy.health <= 0:
+                        enemy.die()
+                    else:
+                        enemy.hurt_sound.play()
+                    self.game.player.missiles.remove(self)
 
 
 class Enemy:
@@ -347,7 +365,6 @@ class Enemy:
 
     def tick(self):
         self.tick_delay += 1
-        self.check_collision()
         if self.tick_delay % 15 == 0:
             self.animated = not self.animated
 
@@ -364,19 +381,6 @@ class Enemy:
         if random.randint(1, 1000) == 1 and self.game.player.ticking:
             self.shoot()
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
-
-    def check_collision(self):
-        for missile in self.game.player.missiles:
-            if (abs(self.x_coord - missile.x_coord) <
-                    self.width / 2 + missile.width / 2 and abs(
-                        self.y_coord - missile.y_coord) <
-                    self.height / 2 + missile.height / 2):
-                self.game.player.missiles.remove(missile)
-                self.health -= 1
-                if self.health <= 0:
-                    self.die()
-                else:
-                    self.hurt_sound.play()
 
     def shoot(self):
         self.game.enemy_missiles.append(Missile(self.x_coord, self.y_coord, "enemy"))
