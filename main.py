@@ -160,6 +160,8 @@ class Game:
             self.gui_flash = not self.gui_flash
 
         for life in range(self.player.lives_remaining):
+            if life >= 8:
+                break
             screen.blit(self.icon_lives, (10 + (life * (13 * sizeMultiplier + 10)), screen_height -
                                           14 * sizeMultiplier - 10))
 
@@ -191,13 +193,18 @@ class Game:
 
         if self.player.player_number == 1:
             if self.gui_flash:
-                screen.blit(self.icon_1up, (30, 10))
+                screen.blit(self.icon_1up, (30 + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2, 10))
             if self.players == 2:
-                screen.blit(self.icon_2up, (screen_width - 30 - (23 * sizeMultiplier), 10))
+                screen.blit(self.icon_2up,
+                            (screen_width - 23 * sizeMultiplier -
+                             (30 + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2), 10))
         elif self.player.player_number == 2:
-            screen.blit(self.icon_1up, (30, 10))
+            screen.blit(self.icon_1up,
+                        (30 + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2, 10))
             if self.gui_flash:
-                screen.blit(self.icon_2up, (screen_width - 30 - (23 * sizeMultiplier), 10))
+                screen.blit(self.icon_2up,
+                            (screen_width - 23 * sizeMultiplier -
+                             (30 + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2), 10))
         screen.blit(self.icon_high_score, (screen_width / 2 - (39.5 * sizeMultiplier), 10))
 
         self.blit_score(
@@ -206,8 +213,8 @@ class Game:
             self.blit_score(
                 self.score_2up, screen_width - 30 - sizeMultiplier * 8 * len(str(self.score_2up)),
                 10 + 8 * sizeMultiplier)
-        self.blit_score(
-            high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(self.score_1up))), 10 + 8 * sizeMultiplier)
+        self.blit_score(high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(self.score_1up))),
+                        10 + 8 * sizeMultiplier)
 
     def blit_score(self, score, x_coord, y_coord):
         score_str = str(score)
@@ -386,7 +393,10 @@ class Missile:
                     self.ticking = False
                     missile.ticking = False
                     self.game.enemy_missiles.remove(missile)
-                    self.game.player.missiles.remove(self)
+                    try:
+                        self.game.player.missiles.remove(self)
+                    except ValueError:
+                        continue
 
 
 class Enemy:
