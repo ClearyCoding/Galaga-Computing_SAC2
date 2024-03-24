@@ -45,6 +45,7 @@ class Game:
         self.time_out = 0
 
         self.stage_up_sound = pygame.mixer.Sound('assets/sounds/stage_up.mp3')
+        self.game_over_sound = pygame.mixer.Sound('assets/sounds/game_over.mp3')
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
@@ -81,6 +82,8 @@ class Game:
         for i in range(len(self.blue_number_textures)):
             self.blue_number_textures[i] = pygame.transform.scale(
                 self.blue_number_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_game_over = pygame.image.load('assets/gui/game_over.png')
+        self.icon_game_over = pygame.transform.scale(self.icon_game_over, (67 * sizeMultiplier, 7 * sizeMultiplier))
 
         for star in range(0, 200):
             self.stars.append(Star())
@@ -95,11 +98,11 @@ class Game:
             # Check if quit button has been pressed
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
+                    return
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        running = False
+                        return
                     if event.key == pygame.K_SPACE:
                         if self.player.ticking:
                             self.player.shoot()
@@ -173,13 +176,13 @@ class Game:
             self.tick_gui()
 
             # End Game If Player Dies
-            if self.player.life < 1 and self.player.timeout < 60:
+            if self.player.life < 1 and self.player.timeout < 150:
                 running = False
 
             # Refresh Screen
             pygame.display.flip()
 
-        pygame.quit()
+        self.game_over()
 
     def spawn_enemies(self):
         key = [[3, 4, 5, 6], [1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8],
@@ -267,20 +270,41 @@ class Game:
             elif colour == "blue":
                 screen.blit(self.blue_number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
 
+    def game_over(self):
+        self.player.ticking = False
+        self.game_over_sound.play()
+        while True:
+            self.clock.tick(self.tps)
+
+            # Reset Screen
+            screen.fill((0, 0, 0))
+
+            for star in self.stars:
+                if star.y_coord > screen_height - 3:
+                    star.regenerate()
+                else:
+                    star.tick()
+
+            screen.blit(self.icon_game_over,
+                        ((screen_width - 67 * sizeMultiplier) / 2, (screen_height - 7 * sizeMultiplier) / 2))
+
+            pygame.display.flip()
+
 
 class Star:
     def __init__(self):
         self.x_coord = random.randint(0, screen_width)
         self.y_coord = random.randint(0, screen_height)
-        self.colour = [random.randint(0, 128), random.randint(0, 128), random.randint(0, 128)]
+        self.colour = [random.randint(0, 100), random.randint(0, 100), random.randint(0, 100)]
         self.display_colour = random.choice([True, False])
         self.tick_delay = random.randint(0, 4)
+        self.velocity = random.randint(2, 8)
 
         self.image = pygame.Surface((3, 3))
 
     def tick(self):
         if self.y_coord < screen_height:
-            self.y_coord += 10
+            self.y_coord += self.velocity
 
         self.tick_delay += 1
         if self.tick_delay % 5 == 0:
@@ -323,6 +347,7 @@ class Player:
         self.missiles = []
         self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
         self.death_sound = pygame.mixer.Sound('assets/sounds/death_player.mp3')
+        self.respawn_sound = pygame.mixer.Sound('assets/sounds/respawn_player.mp3')
 
         self.image = pygame.image.load('assets/player.png')
         self.image = pygame.transform.scale(self.image, (self.fighter_width, self.height))
@@ -347,7 +372,10 @@ class Player:
             for fighter in range(self.fighters):
                 screen.blit(self.image, (self.x_coord + self.fighter_width * fighter, self.y_coord - self.height / 2))
         else:
-            if self.timeout < 60 and self.life >= 1:
+            if self.timeout == 220:
+                if self.life > 0:
+                    self.respawn_sound.play()
+            if self.timeout < 120 and self.life >= 1:
                 self.lives_remaining = self.life - 1
                 if self.tick_delay % 10 == 0:
                     self.respawning = not self.respawning
@@ -356,6 +384,7 @@ class Player:
                         screen.blit(self.image,
                                     (self.x_coord + self.fighter_width * fighter, self.y_coord - self.height / 2))
             if self.timeout < 1:
+                self.respawn_sound.stop()
                 self.ticking = True
             else:
                 self.timeout -= 1
@@ -397,7 +426,7 @@ class Player:
         self.death_sound.play()
         self.game.explosions.append(Explosion(
             self.x_coord + self.width, self.y_coord + self.height / 2, "player", self.game))
-        self.timeout = 120
+        self.timeout = 250
 
     def add_fighters(self, operator=1):
         self.fighters += operator
