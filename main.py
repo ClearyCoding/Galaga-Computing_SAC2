@@ -6,9 +6,16 @@ import pygame
 import random
 import math
 
+
+def save_high_score():
+    with open('high_score.txt', 'w') as high_score_file:
+        high_score_file.write(str(high_score))
+
+
 life_bonus = [20000, 60000]  # First at, Second at and then every
 scores = {}
-high_score = 0
+with open('high_score.txt', 'r') as file:
+    high_score = int(file.read())
 sizeMultiplier = 2.5
 
 # Initialize Pygame
@@ -139,6 +146,7 @@ class Game:
 
             if self.player.score > high_score:
                 high_score = self.player.score
+                save_high_score()
 
             # Draw Player
             self.player.tick()
@@ -245,7 +253,7 @@ class Game:
             self.blit_score(
                 self.score_2up, screen_width - 30 - sizeMultiplier * 8 * len(str(self.score_2up)),
                 10 + 8 * sizeMultiplier)
-        self.blit_score(high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(self.score_1up))),
+        self.blit_score(high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(high_score))),
                         10 + 8 * sizeMultiplier)
 
     def blit_score(self, score, x_coord, y_coord, colour="white"):
