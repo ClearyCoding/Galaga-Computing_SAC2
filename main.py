@@ -6,7 +6,8 @@ import pygame
 import random
 import math
 
-highScores = {}
+scores = {}
+high_score = 0
 sizeMultiplier = 2.5
 
 # Initialize Pygame
@@ -31,6 +32,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.tps = 30
         self.tick_delay = 0
+        self.score_1up = 0
+        self.score_2up = 0
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
@@ -57,11 +60,16 @@ class Game:
         self.icon_2up = pygame.transform.scale(self.icon_2up, (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_high_score = pygame.image.load('assets/gui/high_score.png')
         self.icon_high_score = pygame.transform.scale(self.icon_high_score, (79 * sizeMultiplier, 7 * sizeMultiplier))
+        self.number_textures = [pygame.image.load(f'assets/font/{i}.png') for i in range(10)]
+        for i in range(len(self.number_textures)):
+            self.number_textures[i] = pygame.transform.scale(
+                self.number_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
 
         for star in range(0, 200):
             self.stars.append(Star())
 
     def run(self):
+        global high_score
         running = True
         while running:
             self.clock.tick(self.tps)
@@ -78,6 +86,17 @@ class Game:
                     if event.key == pygame.K_SPACE:
                         if self.player.ticking:
                             self.player.shoot()
+
+            # Update Scores
+            if self.player.score > 999999:
+                self.player.score = 999999
+            if self.player.player_number == 1:
+                self.score_1up = self.player.score
+            elif self.player.player_number == 2:
+                self.score_2up = self.player.score
+
+            if self.player.score > high_score:
+                high_score = self.player.score
 
             # Reset Screen
             screen.fill((0, 0, 0))
@@ -135,6 +154,8 @@ class Game:
                     self.enemies.append(Enemy(species, x_coord, y_coord, self))
 
     def tick_gui(self):
+        global high_score
+
         if self.tick_delay % 15 == 0:
             self.gui_flash = not self.gui_flash
 
@@ -178,6 +199,20 @@ class Game:
             if self.gui_flash:
                 screen.blit(self.icon_2up, (screen_width - 30 - (23 * sizeMultiplier), 10))
         screen.blit(self.icon_high_score, (screen_width / 2 - (39.5 * sizeMultiplier), 10))
+
+        self.blit_score(
+            self.score_1up, 30 + sizeMultiplier * 8 * (6 - len(str(self.score_1up))), 10 + 8 * sizeMultiplier)
+        if self.players == 2 or self.player.player_number == 2:
+            self.blit_score(
+                self.score_2up, screen_width - 30 - sizeMultiplier * 8 * len(str(self.score_2up)),
+                10 + 8 * sizeMultiplier)
+        self.blit_score(
+            high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(self.score_1up))), 10 + 8 * sizeMultiplier)
+
+    def blit_score(self, score, x_coord, y_coord):
+        score_str = str(score)
+        for i, digit in enumerate(score_str):
+            screen.blit(self.number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
 
 
 class Star:
