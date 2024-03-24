@@ -99,6 +99,10 @@ class Game:
             if self.player.score > high_score:
                 high_score = self.player.score
 
+            # Checks if level progression is needed
+            if len(self.enemies) == 0:
+                self.next_level()
+
             # Reset Screen
             screen.fill((0, 0, 0))
 
@@ -221,6 +225,10 @@ class Game:
         score_str = str(score)
         for i, digit in enumerate(score_str):
             screen.blit(self.number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+
+    def next_level(self):
+        self.player.level += 1
+        self.spawn_enemies()
 
 
 class Star:
