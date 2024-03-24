@@ -37,7 +37,7 @@ class Game:
         self.score_2up = 0
         self.time_out = 0
 
-        self.level_up_sound = pygame.mixer.Sound('assets/sounds/level_up.mp3')
+        self.stage_up_sound = pygame.mixer.Sound('assets/sounds/stage_up.mp3')
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
@@ -108,23 +108,23 @@ class Game:
                     star.tick()
 
             # New Stage Animations
-            if self.player.level > 255:
-                self.player.level = 255
+            if self.player.stage > 255:
+                self.player.stage = 255
             if 10 < self.time_out <= 70:
                 screen.blit(self.icon_stage,
                             (screen_width / 2 - (38 * sizeMultiplier + 4 * 8 * sizeMultiplier) / 2,
                              screen_height / 2 - 3.5 * sizeMultiplier))
-                self.blit_score(self.player.level,
+                self.blit_score(self.player.stage,
                                 screen_width / 2 - (38 * sizeMultiplier - 4 * 8 * sizeMultiplier) / 2
-                                + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.player.level)),
+                                + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.player.stage)),
                                 screen_height / 2 - 3.5 * sizeMultiplier, "blue")
             if self.time_out == 55:
-                self.level_up_sound.play()
-                self.player.level += 1
+                self.stage_up_sound.play()
+                self.player.stage += 1
             if self.time_out == 1:
                 self.spawn_enemies()
             if self.time_out == 0:
-                if len(self.enemies) == 0:  # Checks if level progression is needed
+                if len(self.enemies) == 0:  # Checks if stage progression is needed
                     self.time_out = 100
             if self.time_out > 0:
                 self.time_out -= 1
@@ -198,27 +198,27 @@ class Game:
                                           14 * sizeMultiplier - 10))
 
         margin_right = 10
-        for i in range(math.floor(self.player.level / 50)):
+        for i in range(math.floor(self.player.stage / 50)):
             screen.blit(self.icon_badge50, (screen_width - margin_right - self.badge_sizes[5][0],
                                             screen_height - 10 - self.badge_sizes[5][1]))
             margin_right += self.badge_sizes[5][0] + 3
-        for i in range(math.floor(self.player.level % 50 / 30)):
+        for i in range(math.floor(self.player.stage % 50 / 30)):
             screen.blit(self.icon_badge30, (screen_width - margin_right - self.badge_sizes[4][0],
                                             screen_height - 10 - self.badge_sizes[4][1]))
             margin_right += self.badge_sizes[4][0] + 3
-        for i in range(math.floor(self.player.level % 50 % 30 / 20)):
+        for i in range(math.floor(self.player.stage % 50 % 30 / 20)):
             screen.blit(self.icon_badge20, (screen_width - margin_right - self.badge_sizes[3][0],
                                             screen_height - 10 - self.badge_sizes[3][1]))
             margin_right += self.badge_sizes[3][0] + 3
-        for i in range(math.floor(self.player.level % 50 % 30 % 20 / 10)):
+        for i in range(math.floor(self.player.stage % 50 % 30 % 20 / 10)):
             screen.blit(self.icon_badge10, (screen_width - margin_right - self.badge_sizes[2][0],
                                             screen_height - 10 - self.badge_sizes[2][1]))
             margin_right += self.badge_sizes[2][0] + 3
-        for i in range(math.floor(self.player.level % 50 % 30 % 20 % 10 / 5)):
+        for i in range(math.floor(self.player.stage % 50 % 30 % 20 % 10 / 5)):
             screen.blit(self.icon_badge5, (screen_width - margin_right - self.badge_sizes[1][0],
                                            screen_height - 10 - self.badge_sizes[1][1]))
             margin_right += self.badge_sizes[1][0] + 3
-        for i in range(math.floor(self.player.level % 50 % 30 % 20 % 10 % 5)):
+        for i in range(math.floor(self.player.stage % 50 % 30 % 20 % 10 % 5)):
             screen.blit(self.icon_badge1, (screen_width - margin_right - self.badge_sizes[0][0],
                                            screen_height - 10 - self.badge_sizes[0][1]))
             margin_right += self.badge_sizes[0][0] + 3
@@ -293,7 +293,7 @@ class Player:
     def __init__(self, game=None, player_number=1):
         self.life = 3
         self.lives_remaining = self.life - 1
-        self.level = 1
+        self.stage = 1
         self.player_number = player_number
         self.score = 0
         self.fighters = 1
