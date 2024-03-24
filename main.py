@@ -22,7 +22,7 @@ pygame.display.set_icon(window_icon)
 
 class Game:
     def __init__(self):
-        self.level = 0
+        self.players = 1
         self.player = Player(self)
         self.stars = []
         self.enemies = []
@@ -30,6 +30,7 @@ class Game:
         self.explosions = []
         self.clock = pygame.time.Clock()
         self.tps = 30
+        self.tick_delay = 0
 
         self.icon_lives = pygame.image.load('assets/player.png')
         self.badge_sizes = [[7, 12], [7, 14], [13, 14], [15, 16], [15, 16], [15, 16]]
@@ -48,6 +49,11 @@ class Game:
         self.icon_badge30 = pygame.transform.scale(self.icon_badge30, (self.badge_sizes[4][0], self.badge_sizes[4][1]))
         self.icon_badge50 = pygame.image.load('assets/badge50.png')
         self.icon_badge50 = pygame.transform.scale(self.icon_badge50, (self.badge_sizes[5][0], self.badge_sizes[5][1]))
+        self.gui_flash = True
+        self.icon_1up = pygame.image.load('assets/1up.png')
+        self.icon_1up = pygame.transform.scale(self.icon_1up, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_2up = pygame.image.load('assets/2up.png')
+        self.icon_2up = pygame.transform.scale(self.icon_2up, (23 * sizeMultiplier, 7 * sizeMultiplier))
 
         for star in range(0, 200):
             self.stars.append(Star())
@@ -56,6 +62,7 @@ class Game:
         running = True
         while running:
             self.clock.tick(self.tps)
+            self.tick_delay += 1
 
             # Check if quit button has been pressed
             for event in pygame.event.get():
@@ -66,7 +73,8 @@ class Game:
                     if event.key == pygame.K_ESCAPE:
                         running = False
                     if event.key == pygame.K_SPACE:
-                        self.player.shoot()
+                        if self.player.ticking:
+                            self.player.shoot()
 
             # Reset Screen
             screen.fill((0, 0, 0))
@@ -118,16 +126,19 @@ class Game:
             for column in range(10):
                 if column in key[row]:
                     species = [2, 1, 1, 0, 0][row]
-                    y_coord = 60 + (45 * row)
+                    y_coord = 80 + (45 * row)
                     x_coord = 97.5 + (45 * column)
 
                     self.enemies.append(Enemy(species, x_coord, y_coord, self))
 
     def tick_gui(self):
+        if self.tick_delay % 15 == 0:
+            self.gui_flash = not self.gui_flash
+
         for life in range(self.player.lives_remaining):
-            self.icon_lives = pygame.transform.scale(self.icon_lives, (self.player.fighter_width, self.player.height))
-            screen.blit(self.icon_lives, (10 + (life * (self.player.fighter_width + 10)), screen_height -
-                                          self.player.height - 10))
+            self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
+            screen.blit(self.icon_lives, (10 + (life * (13 * sizeMultiplier + 10)), screen_height -
+                                          14 * sizeMultiplier - 10))
 
         margin_right = 10
         for i in range(math.floor(self.player.level / 50)):
@@ -154,6 +165,16 @@ class Game:
             screen.blit(self.icon_badge1, (screen_width - margin_right - self.badge_sizes[0][0],
                                            screen_height - 10 - self.badge_sizes[0][1]))
             margin_right += self.badge_sizes[0][0] + 3
+
+        if self.player.player_number == 1:
+            if self.gui_flash:
+                screen.blit(self.icon_1up, (30, 10))
+            if self.players == 2:
+                screen.blit(self.icon_2up, (screen_width - 30 - (23 * sizeMultiplier), 10))
+        elif self.player.player_number == 2:
+            screen.blit(self.icon_1up, (30, 10))
+            if self.gui_flash:
+                screen.blit(self.icon_2up, (screen_width - 30 - (23 * sizeMultiplier), 10))
 
 
 class Star:
@@ -186,10 +207,11 @@ class Star:
 
 
 class Player:
-    def __init__(self, game=None):
+    def __init__(self, game=None, player_number=1):
         self.life = 3
         self.lives_remaining = self.life - 1
         self.level = 1
+        self.player_number = player_number
         self.score = 0
         self.fighters = 1
         self.height = 16 * sizeMultiplier
@@ -252,7 +274,7 @@ class Player:
             self.firing_sound.play()
             for fighter in range(self.fighters):
                 self.missiles.append(Missile(self.x_coord + self.fighter_width / 2 + fighter * self.fighter_width,
-                                             self.y_coord, "player"))
+                                             self.y_coord, "player", self.game))
 
     def check_collision(self):
         for missile in self.game.enemy_missiles:
@@ -277,10 +299,11 @@ class Player:
 
 
 class Missile:
-    def __init__(self, x_coord, y_coord, team="player"):
+    def __init__(self, x_coord, y_coord, team="player", game=None):
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.team = team
+        self.game = game
 
         self.width = 3 * sizeMultiplier
         self.height = 8 * sizeMultiplier
