@@ -6,6 +6,7 @@ import pygame
 import random
 import math
 
+life_bonus = [20000, 60000]  # First at, Second at and then every
 scores = {}
 high_score = 0
 sizeMultiplier = 2.5
@@ -257,8 +258,9 @@ class Player:
         self.lives_remaining = self.life - 1
         self.level = 1
         self.player_number = player_number
-        self.score = 0
+        self.score = 19000
         self.fighters = 1
+        self.upgrades_reached = 0
         self.height = 16 * sizeMultiplier
         self.fighter_width = 15 * sizeMultiplier
         self.width = self.fighter_width * self.fighters
@@ -281,8 +283,14 @@ class Player:
         self.image = pygame.transform.scale(self.image, (self.fighter_width, self.height))
 
     def tick(self):
+        global life_bonus
         self.tick_delay += 1
+        if self.score >= life_bonus[0] + life_bonus[1] * self.upgrades_reached:
+            self.upgrades_reached += 1
+            self.life += 1
+
         if self.ticking:
+            self.lives_remaining = self.life - 1
             keys = pygame.key.get_pressed()
             if keys[pygame.K_LEFT]:
                 self.move(-1)
