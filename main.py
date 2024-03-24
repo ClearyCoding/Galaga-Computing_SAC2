@@ -35,7 +35,7 @@ class Game:
         self.badge_sizes = [[7, 12], [7, 14], [13, 14], [15, 16], [15, 16], [15, 16]]
         for badge in range(len(self.badge_sizes)):
             for size in range(2):
-                self.badge_sizes[badge][size] = self.badge_sizes[badge][size] * sizeMultiplier
+                self.badge_sizes[badge][size] = round(self.badge_sizes[badge][size] * sizeMultiplier)
         self.icon_badge1 = pygame.image.load('assets/badge1.png')
         self.icon_badge1 = pygame.transform.scale(self.icon_badge1, (self.badge_sizes[0][0], self.badge_sizes[0][1]))
         self.icon_badge5 = pygame.image.load('assets/badge5.png')
@@ -101,6 +101,10 @@ class Game:
                 explosion.tick()
 
             self.tick_gui()
+
+            # End Game If Player Dies
+            if self.player.life < 1 and self.player.timeout < 60:
+                running = False
 
             # Refresh Screen
             pygame.display.flip()
@@ -183,7 +187,8 @@ class Star:
 
 class Player:
     def __init__(self, game=None):
-        self.lives_remaining = 2
+        self.life = 3
+        self.lives_remaining = self.life - 1
         self.level = 1
         self.score = 0
         self.fighters = 1
@@ -191,6 +196,10 @@ class Player:
         self.fighter_width = 15 * sizeMultiplier
         self.width = self.fighter_width * self.fighters
         self.game = game
+        self.ticking = True
+        self.timeout = 60
+        self.tick_delay = 0
+        self.respawning = False
 
         self.x_coord = screen_width / 2 - self.width / 2
         self.y_coord = screen_height - 80
@@ -205,14 +214,30 @@ class Player:
         self.image = pygame.transform.scale(self.image, (self.fighter_width, self.height))
 
     def tick(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
-            self.move(-1)
-        if keys[pygame.K_RIGHT]:
-            self.move(1)
-        self.check_collision()
-        for fighter in range(self.fighters):
-            screen.blit(self.image, (self.x_coord + self.fighter_width * fighter, self.y_coord - self.height / 2))
+        self.tick_delay += 1
+        if self.ticking:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_LEFT]:
+                self.move(-1)
+            if keys[pygame.K_RIGHT]:
+                self.move(1)
+            self.check_collision()
+            for fighter in range(self.fighters):
+                screen.blit(self.image, (self.x_coord + self.fighter_width * fighter, self.y_coord - self.height / 2))
+        else:
+            if self.timeout < 60 and self.life >= 1:
+                self.lives_remaining = self.life - 1
+                if self.tick_delay % 10 == 0:
+                    self.respawning = not self.respawning
+                if self.respawning:
+                    for fighter in range(self.fighters):
+                        screen.blit(self.image,
+                                    (self.x_coord + self.fighter_width * fighter, self.y_coord - self.height / 2))
+            if self.timeout < 1:
+                self.ticking = True
+            else:
+                self.timeout -= 1
+                self.x_coord = screen_width / 2 - self.width / 2
 
     def move(self, direction):
         if direction == -1:
@@ -239,11 +264,12 @@ class Player:
                 self.die()
 
     def die(self):
-        self.lives_remaining -= 1
+        self.ticking = False
+        self.life -= 1
         self.death_sound.play()
         self.game.explosions.append(Explosion(
             self.x_coord + self.width, self.y_coord + self.height / 2, "player", self.game))
-        # TODO: Add Player Death Code
+        self.timeout = 120
 
     def add_fighters(self, operator=1):
         self.fighters += operator
@@ -312,7 +338,7 @@ class Enemy:
                                            [self.species])
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
-        if random.randint(1, 1000) == 1:
+        if random.randint(1, 1000) == 1 and self.game.player.ticking:
             self.shoot()
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
@@ -377,7 +403,8 @@ class Explosion:
                      'assets/explosion3.png', 'assets/explosion4.png']
                     [self.animation])
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
-        screen.blit(self.image, (self.x_coord - self.size / self.size_shift, self.y_coord - self.size / self.size_shift))
+        screen.blit(self.image,
+                    (self.x_coord - self.size / self.size_shift, self.y_coord - self.size / self.size_shift))
 
 
 myGame = Game()
