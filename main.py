@@ -35,6 +35,9 @@ class Game:
         self.tick_delay = 0
         self.score_1up = 0
         self.score_2up = 0
+        self.time_out = 0
+
+        self.level_up_sound = pygame.mixer.Sound('assets/sounds/level_up.mp3')
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
@@ -61,10 +64,16 @@ class Game:
         self.icon_2up = pygame.transform.scale(self.icon_2up, (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_high_score = pygame.image.load('assets/gui/high_score.png')
         self.icon_high_score = pygame.transform.scale(self.icon_high_score, (79 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_stage = pygame.image.load('assets/gui/stage.png')
+        self.icon_stage = pygame.transform.scale(self.icon_stage, (38 * sizeMultiplier, 7 * sizeMultiplier))
         self.number_textures = [pygame.image.load(f'assets/font/{i}.png') for i in range(10)]
         for i in range(len(self.number_textures)):
             self.number_textures[i] = pygame.transform.scale(
                 self.number_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.blue_number_textures = [pygame.image.load(f'assets/font/{i}b.png') for i in range(10)]
+        for i in range(len(self.blue_number_textures)):
+            self.blue_number_textures[i] = pygame.transform.scale(
+                self.blue_number_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
 
         for star in range(0, 200):
             self.stars.append(Star())
@@ -88,6 +97,38 @@ class Game:
                         if self.player.ticking:
                             self.player.shoot()
 
+            # Reset Screen
+            screen.fill((0, 0, 0))
+
+            # Draw Stars
+            for star in self.stars:
+                if star.y_coord > screen_height - 3:
+                    star.regenerate()
+                else:
+                    star.tick()
+
+            # New Stage Animations
+            if self.player.level > 255:
+                self.player.level = 255
+            if 10 < self.time_out <= 70:
+                screen.blit(self.icon_stage,
+                            (screen_width / 2 - (38 * sizeMultiplier + 4 * 8 * sizeMultiplier) / 2,
+                             screen_height / 2 - 3.5 * sizeMultiplier))
+                self.blit_score(self.player.level,
+                                screen_width / 2 - (38 * sizeMultiplier - 4 * 8 * sizeMultiplier) / 2
+                                + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.player.level)),
+                                screen_height / 2 - 3.5 * sizeMultiplier, "blue")
+            if self.time_out == 55:
+                self.level_up_sound.play()
+                self.player.level += 1
+            if self.time_out == 1:
+                self.spawn_enemies()
+            if self.time_out == 0:
+                if len(self.enemies) == 0:  # Checks if level progression is needed
+                    self.time_out = 100
+            if self.time_out > 0:
+                self.time_out -= 1
+
             # Update Scores
             if self.player.score > 999999:
                 self.player.score = 999999
@@ -98,20 +139,6 @@ class Game:
 
             if self.player.score > high_score:
                 high_score = self.player.score
-
-            # Checks if level progression is needed
-            if len(self.enemies) == 0:
-                self.next_level()
-
-            # Reset Screen
-            screen.fill((0, 0, 0))
-
-            # Draw Stars
-            for star in self.stars:
-                if star.y_coord > screen_height - 3:
-                    star.regenerate()
-                else:
-                    star.tick()
 
             # Draw Player
             self.player.tick()
@@ -221,14 +248,16 @@ class Game:
         self.blit_score(high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(self.score_1up))),
                         10 + 8 * sizeMultiplier)
 
-    def blit_score(self, score, x_coord, y_coord):
+    def blit_score(self, score, x_coord, y_coord, colour="white"):
         score_str = str(score)
+        if len(score_str) == 1:
+            score_str = "0" + score_str
+            x_coord -= 8 * sizeMultiplier
         for i, digit in enumerate(score_str):
-            screen.blit(self.number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
-
-    def next_level(self):
-        self.player.level += 1
-        self.spawn_enemies()
+            if colour == "white":
+                screen.blit(self.number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+            elif colour == "blue":
+                screen.blit(self.blue_number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
 
 
 class Star:
