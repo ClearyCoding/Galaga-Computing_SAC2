@@ -32,27 +32,27 @@ class Game:
         self.tps = 30
         self.tick_delay = 0
 
-        self.icon_lives = pygame.image.load('assets/player.png')
+        self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.badge_sizes = [[7, 12], [7, 14], [13, 14], [15, 16], [15, 16], [15, 16]]
         for badge in range(len(self.badge_sizes)):
             for size in range(2):
                 self.badge_sizes[badge][size] = round(self.badge_sizes[badge][size] * sizeMultiplier)
-        self.icon_badge1 = pygame.image.load('assets/badge1.png')
+        self.icon_badge1 = pygame.image.load('assets/gui/badge1.png')
         self.icon_badge1 = pygame.transform.scale(self.icon_badge1, (self.badge_sizes[0][0], self.badge_sizes[0][1]))
-        self.icon_badge5 = pygame.image.load('assets/badge5.png')
+        self.icon_badge5 = pygame.image.load('assets/gui/badge5.png')
         self.icon_badge5 = pygame.transform.scale(self.icon_badge5, (self.badge_sizes[1][0], self.badge_sizes[1][1]))
-        self.icon_badge10 = pygame.image.load('assets/badge10.png')
+        self.icon_badge10 = pygame.image.load('assets/gui/badge10.png')
         self.icon_badge10 = pygame.transform.scale(self.icon_badge10, (self.badge_sizes[2][0], self.badge_sizes[2][1]))
-        self.icon_badge20 = pygame.image.load('assets/badge20.png')
+        self.icon_badge20 = pygame.image.load('assets/gui/badge20.png')
         self.icon_badge20 = pygame.transform.scale(self.icon_badge20, (self.badge_sizes[3][0], self.badge_sizes[3][1]))
-        self.icon_badge30 = pygame.image.load('assets/badge30.png')
+        self.icon_badge30 = pygame.image.load('assets/gui/badge30.png')
         self.icon_badge30 = pygame.transform.scale(self.icon_badge30, (self.badge_sizes[4][0], self.badge_sizes[4][1]))
-        self.icon_badge50 = pygame.image.load('assets/badge50.png')
+        self.icon_badge50 = pygame.image.load('assets/gui/badge50.png')
         self.icon_badge50 = pygame.transform.scale(self.icon_badge50, (self.badge_sizes[5][0], self.badge_sizes[5][1]))
         self.gui_flash = True
-        self.icon_1up = pygame.image.load('assets/1up.png')
+        self.icon_1up = pygame.image.load('assets/gui/1up.png')
         self.icon_1up = pygame.transform.scale(self.icon_1up, (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_2up = pygame.image.load('assets/2up.png')
+        self.icon_2up = pygame.image.load('assets/gui/2up.png')
         self.icon_2up = pygame.transform.scale(self.icon_2up, (23 * sizeMultiplier, 7 * sizeMultiplier))
 
         for star in range(0, 200):
