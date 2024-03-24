@@ -258,7 +258,7 @@ class Player:
         self.lives_remaining = self.life - 1
         self.level = 1
         self.player_number = player_number
-        self.score = 19000
+        self.score = 0
         self.fighters = 1
         self.upgrades_reached = 0
         self.height = 16 * sizeMultiplier
@@ -285,6 +285,8 @@ class Player:
     def tick(self):
         global life_bonus
         self.tick_delay += 1
+
+        self.width = self.fighter_width * self.fighters
         if self.score >= life_bonus[0] + life_bonus[1] * self.upgrades_reached:
             self.upgrades_reached += 1
             self.life += 1
@@ -336,7 +338,13 @@ class Player:
                         self.y_coord - missile.y_coord) <
                     self.height / 2 + missile.height / 2):
                 self.game.enemy_missiles.remove(missile)
-                self.die()
+                if self.fighters <= 1:
+                    self.die()
+                else:
+                    self.death_sound.play()
+                    self.game.explosions.append(Explosion(
+                        missile.x_coord, self.y_coord + self.height / 2, "player", self.game))
+                    self.add_fighters(-1)
 
     def die(self):
         self.ticking = False
