@@ -23,7 +23,7 @@ pygame.display.set_icon(window_icon)
 class Game:
     def __init__(self):
         self.players = 1
-        self.player = Player(self)
+        self.player = Player(self, 1)
         self.stars = []
         self.enemies = []
         self.enemy_missiles = []
@@ -33,6 +33,7 @@ class Game:
         self.tick_delay = 0
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
+        self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
         self.badge_sizes = [[7, 12], [7, 14], [13, 14], [15, 16], [15, 16], [15, 16]]
         for badge in range(len(self.badge_sizes)):
             for size in range(2):
@@ -54,6 +55,8 @@ class Game:
         self.icon_1up = pygame.transform.scale(self.icon_1up, (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_2up = pygame.image.load('assets/gui/2up.png')
         self.icon_2up = pygame.transform.scale(self.icon_2up, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_high_score = pygame.image.load('assets/gui/high_score.png')
+        self.icon_high_score = pygame.transform.scale(self.icon_high_score, (79 * sizeMultiplier, 7 * sizeMultiplier))
 
         for star in range(0, 200):
             self.stars.append(Star())
@@ -126,7 +129,7 @@ class Game:
             for column in range(10):
                 if column in key[row]:
                     species = [2, 1, 1, 0, 0][row]
-                    y_coord = 80 + (45 * row)
+                    y_coord = 100 + (45 * row)
                     x_coord = 97.5 + (45 * column)
 
                     self.enemies.append(Enemy(species, x_coord, y_coord, self))
@@ -136,7 +139,6 @@ class Game:
             self.gui_flash = not self.gui_flash
 
         for life in range(self.player.lives_remaining):
-            self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
             screen.blit(self.icon_lives, (10 + (life * (13 * sizeMultiplier + 10)), screen_height -
                                           14 * sizeMultiplier - 10))
 
@@ -175,6 +177,7 @@ class Game:
             screen.blit(self.icon_1up, (30, 10))
             if self.gui_flash:
                 screen.blit(self.icon_2up, (screen_width - 30 - (23 * sizeMultiplier), 10))
+        screen.blit(self.icon_high_score, (screen_width / 2 - (39.5 * sizeMultiplier), 10))
 
 
 class Star:
@@ -339,6 +342,15 @@ class Missile:
                         enemy.die()
                     else:
                         enemy.hurt_sound.play()
+                    self.game.player.missiles.remove(self)
+            for missile in self.game.enemy_missiles:
+                if (abs(self.x_coord - missile.x_coord) <
+                        self.width / 2 + missile.width / 2 and abs(
+                            self.y_coord - missile.y_coord) <
+                        self.height / 2 + missile.height / 2):
+                    self.ticking = False
+                    missile.ticking = False
+                    self.game.enemy_missiles.remove(missile)
                     self.game.player.missiles.remove(self)
 
 
