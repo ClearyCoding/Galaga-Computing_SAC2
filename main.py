@@ -332,23 +332,23 @@ class Game:
                          (screen_height - 7 * sizeMultiplier) / 2 - 21 * sizeMultiplier))
 
             screen.blit(self.icon_shots,
-                        (((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2,
+                        (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
                          (screen_height - 7 * sizeMultiplier) / 2))
             self.blit_score(self.player.shotsFired,
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
-                            + (6 - len(str(self.player.shotsFired))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
+                            + (5 - len(str(self.player.shotsFired))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
                             (screen_height - 7 * sizeMultiplier) / 2, "yellow")
 
             screen.blit(self.icon_hits,
-                        (((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2,
+                        (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
                          (screen_height + 7 * sizeMultiplier) / 2 + 14 * sizeMultiplier))
             self.blit_score(self.player.hits,
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
-                            + (6 - len(str(self.player.hits))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
+                            + (5 - len(str(self.player.hits))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
                             (screen_height + 7 * sizeMultiplier) / 2 + 14 * sizeMultiplier, "yellow")
 
             screen.blit(self.icon_accuracy,
-                        (((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2,
+                        (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
             if self.player.shotsFired != 0:
                 accuracy = round(100 / self.player.shotsFired * self.player.hits)
@@ -356,11 +356,11 @@ class Game:
                 accuracy = 0
             self.blit_score(accuracy,
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
-                            + (5 - len(str(accuracy))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
+                            + (4 - len(str(accuracy))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
                             (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "yellow")
             screen.blit(self.icon_percentage,
                         (((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
-                            + 5 * 8 * sizeMultiplier + 128 * sizeMultiplier,
+                            + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
 
             # Update Screen
@@ -564,6 +564,8 @@ class Missile:
                     self.ticking = False
                     missile.ticking = False
                     self.game.player.hits += 1
+                    self.game.explosions.append(Explosion(
+                        self.x_coord + self.width / 2, self.y_coord + self.height / 2, "enemy", self.game))
                     self.game.enemy_missiles.remove(missile)
                     try:
                         self.game.player.missiles.remove(self)
