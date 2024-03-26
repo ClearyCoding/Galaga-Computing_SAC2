@@ -22,6 +22,7 @@ scores = {}
 with open('high_score.txt', 'r') as file:
     high_score = int(file.read())
 sizeMultiplier = 2.5
+end_game = False
 
 # Initialize Pygame
 pygame.init()
@@ -106,9 +107,124 @@ class Game:
         self.icon_percentage = pygame.transform.scale(self.icon_percentage, (7 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_decimal = pygame.image.load('assets/gui/decimal_point.png')
         self.icon_decimal = pygame.transform.scale(self.icon_decimal, (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_start = pygame.image.load('assets/gui/start.png')
+        self.icon_start = pygame.transform.scale(self.icon_start, (37 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_ready = pygame.image.load('assets/gui/ready.png')
+        self.icon_ready = pygame.transform.scale(self.icon_ready, (37 * sizeMultiplier, 7 * sizeMultiplier))
 
         for star in range(0, 200):
             self.stars.append(Star())
+
+    def start(self):
+        start_time_out = 120
+        starting = True
+        while starting:
+            self.clock.tick(self.tps)
+
+            # Check if quit button has been pressed
+            self.check_events()
+            if end_game:
+                return
+
+            screen.fill((0, 0, 0))
+
+            for star in self.stars:
+                if star.y_coord > screen_height - 3:
+                    star.regenerate()
+                else:
+                    star.tick(0)
+
+            screen.blit(self.icon_start,
+                        ((screen_width - 37 * sizeMultiplier) / 2, (screen_height - 7 * sizeMultiplier) / 2))
+            start_time_out -= 1
+            self.tick_gui("starting")
+
+            pygame.display.flip()
+
+            if start_time_out == 0:
+                self.player.ticking = False
+                self.player.timeout = 100
+                starting = False
+
+        stage_time_out = 200
+        start_stage = self.player.stage - 1
+        stage_animation = True
+        while stage_animation:
+            self.clock.tick(self.tps)
+
+            # Check if quit button has been pressed
+            self.check_events()
+            if end_game:
+                return
+
+            screen.fill((0, 0, 0))
+            self.tick_delay += 1
+
+            for star in self.stars:
+                if star.y_coord > screen_height - 3:
+                    star.regenerate()
+                else:
+                    star.tick(0.01 * (200 - stage_time_out))
+
+            self.tick_gui("stage_animation")
+
+            self.player.tick()
+
+            if 10 < stage_time_out <= 70:
+                screen.blit(self.icon_stage,
+                            (screen_width / 2 - (38 * sizeMultiplier + 4 * 8 * sizeMultiplier) / 2,
+                             screen_height / 2 - 3.5 * sizeMultiplier))
+                self.blit_score(start_stage,
+                                screen_width / 2 - (38 * sizeMultiplier - 4 * 8 * sizeMultiplier) / 2
+                                + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(start_stage)),
+                                screen_height / 2 - 3.5 * sizeMultiplier, "blue")
+            if stage_time_out == 55:
+                self.stage_up_sound.play()
+                start_stage += 1
+
+            if stage_time_out <= 55:
+                self.tick_gui()
+            if stage_time_out == 1:
+                self.spawn_enemies(False)
+                stage_animation = False
+
+            if stage_time_out > 0 and start_time_out == 0:
+                stage_time_out -= 1
+
+            pygame.display.flip()
+        ready_time_out = 100
+        while ready_time_out > 0:
+            # Check if quit button has been pressed
+            self.check_events()
+            if end_game:
+                return
+
+            screen.fill((0, 0, 0))
+
+            for star in self.stars:
+                if star.y_coord > screen_height - 3:
+                    star.regenerate()
+                else:
+                    star.tick()
+
+            # Draw Enemies
+            for enemy in self.enemies:
+                enemy.tick()
+
+            self.player.tick()
+
+            self.tick_gui("all")
+
+            screen.blit(self.icon_ready,
+                        ((screen_width - 37 * sizeMultiplier) / 2, (screen_height - 7 * sizeMultiplier) / 2))
+
+            pygame.display.flip()
+            ready_time_out -= 1
+
+        for enemy in self.enemies:
+            enemy.ticking = True
+
+        self.run()
 
     def run(self):
         global high_score
@@ -118,18 +234,9 @@ class Game:
             self.tick_delay += 1
 
             # Check if quit button has been pressed
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    return
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        return
-
-                    # Shoot Button
-                    if event.key == pygame.K_SPACE:
-                        if self.player.ticking:
-                            self.player.shoot()
+            self.check_events(True)
+            if end_game:
+                return
 
             # Reset Screen
             screen.fill((0, 0, 0))
@@ -216,7 +323,7 @@ class Game:
 
         self.game_over()
 
-    def spawn_enemies(self):
+    def spawn_enemies(self, ticking=True):
         key = [[3, 4, 5, 6], [1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8],
                [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
         for row in range(5):
@@ -226,12 +333,28 @@ class Game:
                     y_coord = 100 + (45 * row)
                     x_coord = 97.5 + (45 * column)
 
-                    self.enemies.append(Enemy(species, x_coord, y_coord, self))
+                    self.enemies.append(Enemy(species, x_coord, y_coord, self, ticking))
+
+    def check_events(self, missiles=False):
+        global end_game
+        # Check if quit button has been pressed
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                end_game = True
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    end_game = True
+
+                # Shoot Button
+                if event.key == pygame.K_SPACE and missiles:
+                    if self.player.ticking:
+                        self.player.shoot()
 
     def tick_gui(self, mode="all"):
         global high_score
 
-        if mode == "all":
+        if mode == "all" or mode == "stage_animation":
             if self.tick_delay % 15 == 0:
                 self.gui_flash = not self.gui_flash
 
@@ -241,6 +364,7 @@ class Game:
                 screen.blit(self.icon_lives, (10 + (life * (13 * sizeMultiplier + 10)), screen_height -
                                               14 * sizeMultiplier - 10))
 
+        if mode == "all":
             margin_right = 10
             for i in range(math.floor(self.player.stage / 50)):
                 screen.blit(self.icon_badge50, (screen_width - margin_right - self.badge_sizes[5][0],
@@ -266,6 +390,13 @@ class Game:
                 screen.blit(self.icon_badge1, (screen_width - margin_right - self.badge_sizes[0][0],
                                                screen_height - 10 - self.badge_sizes[0][1]))
                 margin_right += self.badge_sizes[0][0] + 3
+
+        if mode == "starting":
+            for life in range(self.player.life):
+                if life >= 8:
+                    break
+                screen.blit(self.icon_lives, (10 + (life * (13 * sizeMultiplier + 10)), screen_height -
+                                              14 * sizeMultiplier - 10))
 
         if self.player.player_number == 1:
             if self.gui_flash or mode == "limited":
@@ -308,17 +439,14 @@ class Game:
     def game_over(self):
         self.player.ticking = False
         self.game_over_sound.play()
-        while True:
+        game_over_loop = True
+        while game_over_loop:
             self.clock.tick(self.tps)
 
             # Check if quit button has been pressed
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    return
-
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_ESCAPE:
-                        return
+            self.check_events()
+            if end_game:
+                return
 
             # Reset Screen
             screen.fill((0, 0, 0))
@@ -384,7 +512,7 @@ class Game:
             pygame.display.flip()
 
             if not pygame.mixer.get_busy():
-                return
+                game_over_loop = False
 
 
 class Star:
@@ -398,9 +526,9 @@ class Star:
 
         self.image = pygame.Surface((3, 3))
 
-    def tick(self):
+    def tick(self, speed=float(1)):
         if self.y_coord < screen_height:
-            self.y_coord += self.velocity
+            self.y_coord += self.velocity * speed
 
         self.tick_delay += 1
         if self.tick_delay % 5 == 0:
@@ -595,12 +723,13 @@ class Missile:
 
 
 class Enemy:
-    def __init__(self, species=0, x_coord=screen_width / 2, y_coord=60, game=None):
+    def __init__(self, species=0, x_coord=screen_width / 2, y_coord=60, game=None, ticking=True):
         self.species = species
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.game = game
         self.diving = False
+        self.ticking = ticking
         self.tick_delay = 0
         self.health = [1, 1, 2][self.species]
         self.death_sound = pygame.mixer.Sound(['assets/sounds/enemy_death_a.mp3', 'assets/sounds/enemy_death_b.mp3',
@@ -630,7 +759,7 @@ class Enemy:
                                            [self.species])
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
-        if random.randint(1, 1000) == 1 and self.game.player.ticking:
+        if random.randint(1, 1000) == 1 and self.game.player.ticking and self.ticking:
             self.shoot()
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
@@ -687,5 +816,4 @@ class Explosion:
 
 
 myGame = Game()
-myGame.spawn_enemies()
-myGame.run()
+myGame.start()
