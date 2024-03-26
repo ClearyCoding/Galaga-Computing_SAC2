@@ -99,6 +99,8 @@ class Game:
         self.icon_accuracy = pygame.transform.scale(self.icon_accuracy, (128 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_percentage = pygame.image.load('assets/gui/percentage.png')
         self.icon_percentage = pygame.transform.scale(self.icon_percentage, (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_decimal = pygame.image.load('assets/gui/decimal_point.png')
+        self.icon_decimal = pygame.transform.scale(self.icon_decimal, (7 * sizeMultiplier, 7 * sizeMultiplier))
 
         for star in range(0, 200):
             self.stars.append(Star())
@@ -285,9 +287,9 @@ class Game:
         self.blit_score(high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(high_score))),
                         10 + 8 * sizeMultiplier)
 
-    def blit_score(self, score, x_coord, y_coord, colour="white"):
+    def blit_score(self, score, x_coord, y_coord, colour="white", skip=False):
         score_str = str(score)
-        if len(score_str) == 1:
+        if len(score_str) == 1 and not skip:
             score_str = "0" + score_str
             x_coord -= 8 * sizeMultiplier
         for i, digit in enumerate(score_str):
@@ -351,13 +353,23 @@ class Game:
                         (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
             if self.player.shotsFired != 0:
-                accuracy = round(100 / self.player.shotsFired * self.player.hits)
+                accuracy = 100 / self.player.shotsFired * self.player.hits
             else:
                 accuracy = 0
+            accuracy_decimal = accuracy * 10 % 10
+            accuracy = round(accuracy)
             self.blit_score(accuracy,
-                            ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
+                            ((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
                             + (4 - len(str(accuracy))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
                             (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "yellow")
+            self.blit_score(round(accuracy_decimal),
+                            ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
+                            + 3 * 8 * sizeMultiplier + 128 * sizeMultiplier,
+                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "yellow", True)
+            screen.blit(self.icon_decimal,
+                        (((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
+                         + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
+                         (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
             screen.blit(self.icon_percentage,
                         (((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                             + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
