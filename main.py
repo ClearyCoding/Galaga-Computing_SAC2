@@ -6,13 +6,18 @@ import pygame
 import random
 import math
 
+# The number of lives the player starts with
+initial_lives = 3
+
+# Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
+life_bonus = [20000, 60000, 60000]
+
 
 def save_high_score():
     with open('high_score.txt', 'w') as high_score_file:
         high_score_file.write(str(high_score))
 
 
-life_bonus = [20000, 60000]  # First at, Second at and then every
 scores = {}
 with open('high_score.txt', 'r') as file:
     high_score = int(file.read())
@@ -414,7 +419,7 @@ class Star:
 
 class Player:
     def __init__(self, game=None, player_number=1):
-        self.life = 3
+        self.life = initial_lives
         self.lives_remaining = self.life - 1
         self.stage = 1
         self.player_number = player_number
@@ -446,9 +451,13 @@ class Player:
     def tick(self):
         global life_bonus
         self.tick_delay += 1
-
         self.width = self.fighter_width * self.fighters
-        if self.score >= life_bonus[0] + life_bonus[1] * self.upgrades_reached:
+
+        if self.score >= life_bonus[0] and self.upgrades_reached == 0:
+            self.upgrades_reached += 1
+            self.life += 1
+
+        if self.score >= life_bonus[1] + life_bonus[2] * (abs(self.upgrades_reached - 1)):
             self.upgrades_reached += 1
             self.life += 1
 
