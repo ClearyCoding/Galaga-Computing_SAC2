@@ -698,15 +698,15 @@ class Game:
                          55 * sizeMultiplier))
             screen.blit(self.icon_score,
                         (48 * sizeMultiplier,
-                         85 * sizeMultiplier))
+                         105 * sizeMultiplier))
             screen.blit(self.icon_name,
                         (screen_width - 40 * sizeMultiplier - 31 * sizeMultiplier,
-                         85 * sizeMultiplier))
+                         105 * sizeMultiplier))
             self.blit_score(self.player.score, 40 * sizeMultiplier +
                             (6 - len(str(self.player.score))) * 8 * sizeMultiplier,
-                            100 * sizeMultiplier, "blue")
+                            120 * sizeMultiplier, "blue")
             self.blit_score(self.player.name, screen_width - 40 * sizeMultiplier - 24 * sizeMultiplier,
-                            100 * sizeMultiplier)
+                            120 * sizeMultiplier)
 
             screen.blit(self.icon_score, (65 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
             screen.blit(self.icon_name, (screen_width - 61 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
