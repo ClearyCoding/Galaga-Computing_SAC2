@@ -9,10 +9,6 @@ import math
 # The number of lives the player starts with
 initial_lives = 3
 
-# Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
-life_bonus = [20000, 60000, 60000]
-
-
 def save_high_score():
     with open('high_score.txt', 'w') as high_score_file:
         high_score_file.write(str(high_score))
@@ -23,6 +19,9 @@ with open('high_score.txt', 'r') as file:
     high_score = int(file.read())
 sizeMultiplier = 2.5
 end_game = False
+
+# Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
+life_bonus = [20000, 60000, 60000]
 
 # Initialize Pygame
 pygame.init()
@@ -50,6 +49,7 @@ class Game:
         self.score_2up = 0
         self.time_out = 0
         self.game_end = False
+        self.menu_open = True
 
         self.start_sound = pygame.mixer.Sound('assets/sounds/start.mp3')
         self.stage_up_sound = pygame.mixer.Sound('assets/sounds/stage_up.mp3')
@@ -112,15 +112,63 @@ class Game:
         self.icon_start = pygame.transform.scale(self.icon_start, (37 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_ready = pygame.image.load('assets/gui/ready.png')
         self.icon_ready = pygame.transform.scale(self.icon_ready, (37 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_push_start = pygame.image.load('assets/gui/push_start.png')
+        self.icon_push_start = pygame.transform.scale(self.icon_push_start, (135 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_first_bonus = pygame.image.load('assets/gui/bonus_1.png')
+        self.icon_first_bonus = pygame.transform.scale(self.icon_first_bonus,
+                                                       (208 * sizeMultiplier, 16 * sizeMultiplier))
+        self.icon_second_bonus = pygame.image.load('assets/gui/bonus_2.png')
+        self.icon_second_bonus = pygame.transform.scale(self.icon_second_bonus,
+                                                        (208 * sizeMultiplier, 16 * sizeMultiplier))
+        self.icon_third_bonus = pygame.image.load('assets/gui/bonus_3.png')
+        self.icon_third_bonus = pygame.transform.scale(self.icon_third_bonus,
+                                                       (208 * sizeMultiplier, 16 * sizeMultiplier))
 
         for star in range(0, 200):
             self.stars.append(Star())
 
     def start(self):
+        while self.menu_open:
+            self.clock.tick(self.tps)
+            self.tick_delay += 1
+
+            # Check if quit button has been pressed
+            self.check_events(mode="menu")
+            if end_game:
+                return
+
+            screen.fill((0, 0, 0))
+
+            for star in self.stars:
+                if star.y_coord > screen_height - 3:
+                    star.regenerate()
+                else:
+                    star.tick()
+
+            self.tick_gui("limited")
+
+            if self.gui_flash:
+                screen.blit(self.icon_push_start,
+                            ((screen_width - 135 * sizeMultiplier) / 2,
+                             (screen_height - 7 * sizeMultiplier) / 2 - 32 * sizeMultiplier))
+            screen.blit(self.icon_first_bonus,
+                        ((screen_width - 208 * sizeMultiplier) / 2,
+                         (screen_height - 16 * sizeMultiplier) / 2 + sizeMultiplier))
+            screen.blit(self.icon_second_bonus,
+                        ((screen_width - 208 * sizeMultiplier) / 2,
+                         (screen_height - 16 * sizeMultiplier) / 2 + 32 * sizeMultiplier))
+            screen.blit(self.icon_third_bonus,
+                        ((screen_width - 208 * sizeMultiplier) / 2,
+                         (screen_height - 16 * sizeMultiplier) / 2 + 64 * sizeMultiplier))
+
+            pygame.display.flip()
+
+
         starting = True
         self.start_sound.play()
         while starting:
             self.clock.tick(self.tps)
+            self.tick_delay += 1
 
             # Check if quit button has been pressed
             self.check_events()
@@ -144,7 +192,7 @@ class Game:
             if not pygame.mixer.get_busy():
                 starting = False
 
-        stage_time_out = 200
+        stage_time_out = 100
         start_stage = self.player.stage - 1
         stage_animation = True
         while stage_animation:
@@ -162,7 +210,7 @@ class Game:
                 if star.y_coord > screen_height - 3:
                     star.regenerate()
                 else:
-                    star.tick(0.005 * (200 - stage_time_out))
+                    star.tick(0.01 * (100 - stage_time_out))
 
             self.tick_gui("stage_animation")
 
@@ -334,7 +382,7 @@ class Game:
 
                     self.enemies.append(Enemy(species, x_coord, y_coord, self, ticking))
 
-    def check_events(self, missiles=False):
+    def check_events(self, missiles=False, mode="normal"):
         global end_game
         # Check if quit button has been pressed
         for event in pygame.event.get():
@@ -350,13 +398,16 @@ class Game:
                     if self.player.ticking:
                         self.player.shoot()
 
+                if event.key == pygame.K_RETURN and mode == "menu":
+                    self.menu_open = False
+
     def tick_gui(self, mode="all"):
         global high_score
 
-        if mode == "all" or mode == "stage_animation":
-            if self.tick_delay % 15 == 0:
-                self.gui_flash = not self.gui_flash
+        if self.tick_delay % 15 == 0:
+            self.gui_flash = not self.gui_flash
 
+        if mode == "all" or mode == "stage_animation":
             for life in range(self.player.lives_remaining):
                 if life >= 8:
                     break
