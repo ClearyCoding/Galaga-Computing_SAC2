@@ -51,6 +51,7 @@ class Game:
         self.time_out = 0
         self.game_end = False
 
+        self.start_sound = pygame.mixer.Sound('assets/sounds/start.mp3')
         self.stage_up_sound = pygame.mixer.Sound('assets/sounds/stage_up.mp3')
         self.game_over_sound = pygame.mixer.Sound('assets/sounds/game_over.mp3')
 
@@ -116,8 +117,8 @@ class Game:
             self.stars.append(Star())
 
     def start(self):
-        start_time_out = 120
         starting = True
+        self.start_sound.play()
         while starting:
             self.clock.tick(self.tps)
 
@@ -136,14 +137,11 @@ class Game:
 
             screen.blit(self.icon_start,
                         ((screen_width - 37 * sizeMultiplier) / 2, (screen_height - 7 * sizeMultiplier) / 2))
-            start_time_out -= 1
             self.tick_gui("starting")
 
             pygame.display.flip()
 
-            if start_time_out == 0:
-                self.player.ticking = False
-                self.player.timeout = 100
+            if not pygame.mixer.get_busy():
                 starting = False
 
         stage_time_out = 200
@@ -164,7 +162,7 @@ class Game:
                 if star.y_coord > screen_height - 3:
                     star.regenerate()
                 else:
-                    star.tick(0.01 * (200 - stage_time_out))
+                    star.tick(0.005 * (200 - stage_time_out))
 
             self.tick_gui("stage_animation")
 
@@ -184,14 +182,15 @@ class Game:
 
             if stage_time_out <= 55:
                 self.tick_gui()
-            if stage_time_out == 1:
-                self.spawn_enemies(False)
-                stage_animation = False
 
-            if stage_time_out > 0 and start_time_out == 0:
+            if stage_time_out > 0:
                 stage_time_out -= 1
 
             pygame.display.flip()
+
+            if stage_time_out == 1:
+                self.spawn_enemies(False)
+                stage_animation = False
         ready_time_out = 100
         while ready_time_out > 0:
             # Check if quit button has been pressed
