@@ -9,14 +9,26 @@ import math
 # The number of lives the player starts with
 initial_lives = 3
 
-def save_high_score():
-    with open('high_score.txt', 'w') as high_score_file:
-        high_score_file.write(str(high_score))
+high_scores = {}
 
 
-scores = {}
-with open('high_score.txt', 'r') as file:
-    high_score = int(file.read())
+def save_high_score(player, score):
+    global high_scores
+    if high_scores[player] and high_scores[player] < score or not high_scores[player]:
+        high_scores[player] = score
+    high_scores = {k: v for k, v in sorted(high_scores.items(), key=lambda item: item[1], reverse=True)}
+    with open('high_scores', 'w') as save_highScoreFile:
+        for save_player, save_score in high_scores.items():
+            save_highScoreFile.write(f'{save_player}:{save_score}\n')
+
+
+with open('high_scores', 'r') as load_highScoreFile:
+    for line in load_highScoreFile:
+        load_player, load_score = line.strip().split(':')
+        high_scores[load_player] = int(load_score)
+    high_scores = {k: v for k, v in sorted(high_scores.items(), key=lambda item: item[1], reverse=True)}
+
+local_high_score = list(high_scores.values())[0]
 sizeMultiplier = 2.5
 end_game = False
 
@@ -110,6 +122,10 @@ class Game:
         self.icon_decimal = pygame.transform.scale(self.icon_decimal, (7 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_start = pygame.image.load('assets/gui/start.png')
         self.icon_start = pygame.transform.scale(self.icon_start, (37 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_player_1 = pygame.image.load('assets/gui/player_1.png')
+        self.icon_player_1 = pygame.transform.scale(self.icon_player_1, (58 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_player_2 = pygame.image.load('assets/gui/player_1.png')
+        self.icon_player_2 = pygame.transform.scale(self.icon_player_2, (58 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_ready = pygame.image.load('assets/gui/ready.png')
         self.icon_ready = pygame.transform.scale(self.icon_ready, (37 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_push_start = pygame.image.load('assets/gui/push_start.png')
@@ -163,7 +179,6 @@ class Game:
 
             pygame.display.flip()
 
-
         starting = True
         self.start_sound.play()
         while starting:
@@ -184,8 +199,18 @@ class Game:
                     star.tick(0)
 
             screen.blit(self.icon_start,
-                        ((screen_width - 37 * sizeMultiplier) / 2, (screen_height - 7 * sizeMultiplier) / 2))
-            self.tick_gui("starting")
+                        ((screen_width - 37 * sizeMultiplier) / 2,
+                         (screen_height - 7 * sizeMultiplier) / 2 - + 7 * sizeMultiplier))
+            if self.player.player_number == 1:
+                screen.blit(self.icon_player_1,
+                            ((screen_width - 58 * sizeMultiplier) / 2,
+                             (screen_height - 7 * sizeMultiplier) / 2 + 7 * sizeMultiplier))
+                self.tick_gui("starting")
+            if self.player.player_number == 2:
+                screen.blit(self.icon_player_2,
+                            ((screen_width - 58 * sizeMultiplier) / 2,
+                             (screen_height - 7 * sizeMultiplier) / 2 + 7 * sizeMultiplier))
+                self.tick_gui("starting")
 
             pygame.display.flip()
 
@@ -241,6 +266,8 @@ class Game:
                 stage_animation = False
         ready_time_out = 100
         while ready_time_out > 0:
+            self.clock.tick(self.tps)
+
             # Check if quit button has been pressed
             self.check_events()
             if end_game:
@@ -274,7 +301,7 @@ class Game:
         self.run()
 
     def run(self):
-        global high_score
+        global local_high_score
         running = True
         while running:
             self.clock.tick(self.tps)
@@ -325,9 +352,8 @@ class Game:
             elif self.player.player_number == 2:
                 self.score_2up = self.player.score
 
-            if self.player.score > high_score:
-                high_score = self.player.score
-                save_high_score()
+            if self.player.score > local_high_score:
+                local_high_score = self.player.score
 
             # Draw Player
             self.player.tick()
@@ -387,10 +413,12 @@ class Game:
         # Check if quit button has been pressed
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                save_high_score("???", local_high_score)
                 end_game = True
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
+                    save_high_score("???", local_high_score)
                     end_game = True
 
                 # Shoot Button
@@ -402,7 +430,7 @@ class Game:
                     self.menu_open = False
 
     def tick_gui(self, mode="all"):
-        global high_score
+        global local_high_score
 
         if self.tick_delay % 15 == 0:
             self.gui_flash = not self.gui_flash
@@ -470,7 +498,7 @@ class Game:
             self.blit_score(
                 self.score_2up, screen_width - 30 - sizeMultiplier * 8 * len(str(self.score_2up)),
                 10 + 8 * sizeMultiplier)
-        self.blit_score(high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(high_score))),
+        self.blit_score(local_high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(local_high_score))),
                         10 + 8 * sizeMultiplier)
 
     def blit_score(self, score, x_coord, y_coord, colour="white", skip=False):
