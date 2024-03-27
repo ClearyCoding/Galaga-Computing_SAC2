@@ -324,8 +324,7 @@ class Game:
         self.game_over()
 
     def spawn_enemies(self, ticking=True):
-        key = [[3, 4, 5, 6], [1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8],
-               [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
+        key = [range(3,7), range(1,9), range(1,9), range(1,9), range(1,9)]
         for row in range(5):
             for column in range(10):
                 if column in key[row]:
