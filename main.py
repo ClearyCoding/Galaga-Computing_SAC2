@@ -28,7 +28,10 @@ with open('high_scores', 'r') as load_highScoreFile:
         high_scores[load_player] = int(load_score)
     high_scores = {k: v for k, v in sorted(high_scores.items(), key=lambda item: item[1], reverse=True)}
 
-local_high_score = list(high_scores.values())[0]
+if list(high_scores.values()):
+    local_high_score = list(high_scores.values())[0]
+else:
+    local_high_score = 0
 sizeMultiplier = 2.5
 end_game = False
 
