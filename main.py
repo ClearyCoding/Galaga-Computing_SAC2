@@ -63,6 +63,8 @@ class Game:
         self.game_end = False
         self.menu_open = True
         self.save_score = False
+        self.save_action = None
+        self.high_score_flash = False
 
         self.start_sound = pygame.mixer.Sound('assets/sounds/start.mp3')
         self.stage_up_sound = pygame.mixer.Sound('assets/sounds/stage_up.mp3')
@@ -107,12 +109,26 @@ class Game:
         for i in range(len(self.yellow_number_textures)):
             self.yellow_number_textures[i] = pygame.transform.scale(
                 self.yellow_number_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.letter_textures = [pygame.image.load(f'assets/font/blue/{i}.png') for i in
+        self.letter_textures = [pygame.image.load(f'assets/font/{i}.png') for i in
                                 ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
                                  'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']]
         for i in range(len(self.letter_textures)):
             self.letter_textures[i] = pygame.transform.scale(
                 self.letter_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
+
+        self.blue_letter_textures = [pygame.image.load(f'assets/font/blue/{i}.png') for i in
+                                     ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+                                      'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']]
+        for i in range(len(self.blue_letter_textures)):
+            self.blue_letter_textures[i] = pygame.transform.scale(
+                self.blue_letter_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
+
+        self.yellow_letter_textures = [pygame.image.load(f'assets/font/yellow/{i}.png') for i in
+                                       ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+                                        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']]
+        for i in range(len(self.yellow_letter_textures)):
+            self.yellow_letter_textures[i] = pygame.transform.scale(
+                self.yellow_letter_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_game_over = pygame.image.load('assets/gui/game_over.png')
         self.icon_game_over = pygame.transform.scale(self.icon_game_over, (67 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_results = pygame.image.load('assets/gui/results.png')
@@ -128,8 +144,23 @@ class Game:
         self.icon_question_mark = pygame.image.load('assets/gui/question_mark.png')
         self.icon_question_mark = pygame.transform.scale(self.icon_question_mark,
                                                          (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_question_mark_yellow = pygame.image.load('assets/gui/question_mark_yellow.png')
+        self.icon_question_mark_yellow = pygame.transform.scale(self.icon_question_mark_yellow,
+                                                                (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_question_mark_white = pygame.image.load('assets/gui/question_mark_white.png')
+        self.icon_question_mark_white = pygame.transform.scale(self.icon_question_mark_white,
+                                                               (7 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_decimal = pygame.image.load('assets/gui/decimal_point.png')
         self.icon_decimal = pygame.transform.scale(self.icon_decimal, (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_decimal_blue = pygame.image.load('assets/gui/decimal_point_blue.png')
+        self.icon_decimal_blue = pygame.transform.scale(self.icon_decimal_blue,
+                                                        (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_decimal_white = pygame.image.load('assets/gui/decimal_point_white.png')
+        self.icon_decimal_white = pygame.transform.scale(self.icon_decimal_white,
+                                                         (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_underline = pygame.image.load('assets/gui/underline.png')
+        self.icon_underline = pygame.transform.scale(self.icon_underline,
+                                                     (7 * sizeMultiplier, 1 * sizeMultiplier))
         self.icon_start = pygame.image.load('assets/gui/start.png')
         self.icon_start = pygame.transform.scale(self.icon_start, (37 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_player_1 = pygame.image.load('assets/gui/player_1.png')
@@ -231,7 +262,7 @@ class Game:
                     self.blit_score(score, 65 * sizeMultiplier + (6 - len(str(score))) * 8 * sizeMultiplier,
                                     screen_height - (120 - i * 20) * sizeMultiplier, "blue")
                     self.blit_score(name, screen_width - 54 * sizeMultiplier,
-                                    screen_height - (120 - i * 20) * sizeMultiplier)
+                                    screen_height - (120 - i * 20) * sizeMultiplier, "blue")
 
             screen.blit(self.icon_free_play,
                         (5 * sizeMultiplier, screen_height - 2 * sizeMultiplier - 7 * sizeMultiplier))
@@ -414,6 +445,7 @@ class Game:
 
             if self.player.score > local_high_score:
                 local_high_score = self.player.score
+                self.high_score_flash = True
 
             # Draw Player
             self.player.tick()
@@ -492,6 +524,14 @@ class Game:
                     self.menu_open = False
                 if event.key == pygame.K_RETURN and mode == "save":
                     self.save_score = True
+                if event.key == pygame.K_UP and mode == "save":
+                    self.save_action = "up"
+                if event.key == pygame.K_DOWN and mode == "save":
+                    self.save_action = "down"
+                if event.key == pygame.K_LEFT and mode == "save":
+                    self.save_action = "left"
+                if event.key == pygame.K_RIGHT and mode == "save":
+                    self.save_action = "right"
 
     def tick_gui(self, mode="all"):
         global local_high_score
@@ -554,7 +594,8 @@ class Game:
                 screen.blit(self.icon_2up,
                             (screen_width - 23 * sizeMultiplier -
                              (30 + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2), 10))
-        screen.blit(self.icon_high_score, (screen_width / 2 - (39.5 * sizeMultiplier), 10))
+        if not self.high_score_flash or self.gui_flash or mode == "limited":
+            screen.blit(self.icon_high_score, (screen_width / 2 - (39.5 * sizeMultiplier), 10))
 
         self.blit_score(
             self.score_1up, 30 + sizeMultiplier * 8 * (6 - len(str(self.score_1up))), 10 + 8 * sizeMultiplier)
@@ -579,13 +620,30 @@ class Game:
                 elif colour == "yellow":
                     screen.blit(self.yellow_number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
             elif digit == "?":
-                screen.blit(self.icon_question_mark, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                if colour == "blue":
+                    screen.blit(self.icon_question_mark, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                elif colour == "white":
+                    screen.blit(self.icon_question_mark_white, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                elif colour == "yellow":
+                    screen.blit(self.icon_question_mark_yellow, (x_coord + i * 8 * sizeMultiplier, y_coord))
+            elif digit == ".":
+                if colour == "blue":
+                    screen.blit(self.icon_decimal_blue, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                elif colour == "yellow":
+                    screen.blit(self.icon_decimal, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                elif colour == "white":
+                    screen.blit(self.icon_decimal_white, (x_coord + i * 8 * sizeMultiplier, y_coord))
             else:
                 if digit.islower():
                     digit = ord(digit) - ord('a')
                 else:
                     digit = ord(digit) - ord('A')
-                screen.blit(self.letter_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                if colour == "white":
+                    screen.blit(self.letter_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                elif colour == "yellow":
+                    screen.blit(self.yellow_letter_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                elif colour == "blue":
+                    screen.blit(self.blue_letter_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
 
     def game_over(self):
         self.player.ticking = False
@@ -653,7 +711,7 @@ class Game:
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
             screen.blit(self.icon_percentage,
                         (((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
-                            + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
+                         + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
 
             # Scores GUI
@@ -673,8 +731,13 @@ class Game:
                 if self.player.score > value and i < 5:
                     scoreboard = True
 
+        selected_letter = 0
+        player_name = [0, 0, 0]
+        letter_selection = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+                            'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '.']
         while scoreboard:
             self.clock.tick(self.tps)
+            self.tick_delay += 1
 
             # Reset Screen
             screen.fill((0, 0, 0))
@@ -684,6 +747,24 @@ class Game:
             if end_game:
                 return
 
+            # Edits Initials
+            if self.save_action:
+                if self.save_action == "right":
+                    selected_letter = (selected_letter + 1) % 3
+                if self.save_action == "left":
+                    selected_letter = (selected_letter - 1) % 3
+                if self.save_action == "up":
+                    player_name[selected_letter] -= 1
+                    if player_name[selected_letter] < 0:
+                        player_name[selected_letter] = len(letter_selection) - 1
+                if self.save_action == "down":
+                    player_name[selected_letter] += 1
+                    if player_name[selected_letter] >= len(letter_selection):
+                        player_name[selected_letter] = 0
+                self.player.name = (letter_selection[player_name[0]] + letter_selection[player_name[1]]
+                                    + letter_selection[player_name[2]])
+                self.save_action = None
+
             # Star Field
             for star in self.stars:
                 if star.y_coord > screen_height - 3:
@@ -692,6 +773,11 @@ class Game:
                     star.tick()
 
             self.tick_gui(mode="limited")
+
+            if self.gui_flash:
+                screen.blit(self.icon_underline,
+                            (screen_width - 40 * sizeMultiplier - (3 - selected_letter) * 8 * sizeMultiplier,
+                             120 * sizeMultiplier + 9 * sizeMultiplier))
 
             screen.blit(self.icon_initials,
                         ((screen_width - 164 * sizeMultiplier) / 2,
@@ -705,8 +791,15 @@ class Game:
             self.blit_score(self.player.score, 40 * sizeMultiplier +
                             (6 - len(str(self.player.score))) * 8 * sizeMultiplier,
                             120 * sizeMultiplier, "blue")
-            self.blit_score(self.player.name, screen_width - 40 * sizeMultiplier - 24 * sizeMultiplier,
-                            120 * sizeMultiplier)
+            for i in range(3):
+                if i == selected_letter:
+                    self.blit_score(letter_selection[player_name[i]],
+                                    screen_width - 40 * sizeMultiplier - (3 - i) * 8 * sizeMultiplier,
+                                    120 * sizeMultiplier, "white")
+                else:
+                    self.blit_score(letter_selection[player_name[i]],
+                                    screen_width - 40 * sizeMultiplier - (3 - i) * 8 * sizeMultiplier,
+                                    120 * sizeMultiplier, "blue")
 
             screen.blit(self.icon_score, (65 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
             screen.blit(self.icon_name, (screen_width - 61 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
