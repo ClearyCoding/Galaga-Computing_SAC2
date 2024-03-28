@@ -202,6 +202,16 @@ class Game:
         self.icon_fourth = pygame.transform.scale(self.icon_fourth, (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_fifth = pygame.image.load('assets/gui/5th.png')
         self.icon_fifth = pygame.transform.scale(self.icon_fifth, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_first_yellow = pygame.image.load('assets/gui/1st_yellow.png')
+        self.icon_first_yellow = pygame.transform.scale(self.icon_first_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_second_yellow = pygame.image.load('assets/gui/2nd_yellow.png')
+        self.icon_second_yellow = pygame.transform.scale(self.icon_second_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_third_yellow = pygame.image.load('assets/gui/3rd_yellow.png')
+        self.icon_third_yellow = pygame.transform.scale(self.icon_third_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_fourth_yellow = pygame.image.load('assets/gui/4th_yellow.png')
+        self.icon_fourth_yellow = pygame.transform.scale(self.icon_fourth_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_fifth_yellow = pygame.image.load('assets/gui/5th_yellow.png')
+        self.icon_fifth_yellow = pygame.transform.scale(self.icon_fifth_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_heroes = pygame.image.load('assets/gui/galactic_heroes.png')
         self.icon_heroes = pygame.transform.scale(self.icon_heroes, (150 * sizeMultiplier, 7 * sizeMultiplier))
 
@@ -700,12 +710,12 @@ class Game:
             self.blit_score(accuracy,
                             ((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
                             + (4 - len(str(accuracy))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
-                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "yellow")
+                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "white")
             self.blit_score(round(accuracy_decimal),
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                             + 3 * 8 * sizeMultiplier + 128 * sizeMultiplier,
-                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "yellow", True)
-            screen.blit(self.icon_decimal,
+                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "white", True)
+            screen.blit(self.icon_decimal_white,
                         (((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
                          + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
@@ -804,15 +814,31 @@ class Game:
             screen.blit(self.icon_score, (65 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
             screen.blit(self.icon_name, (screen_width - 61 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
 
-            for i, (name, score) in enumerate(high_scores.items()):
+            inclusive_high_scores = high_scores.copy()
+            inclusive_high_scores[self.player.name] = self.player.score
+            inclusive_high_scores = {k: v for k, v in sorted(inclusive_high_scores.items(),
+                                                             key=lambda item: item[1], reverse=True)}
+
+            for i, (name, score) in enumerate(inclusive_high_scores.items()):
                 if i > 4:
                     break
-                screen.blit([self.icon_first, self.icon_second, self.icon_third, self.icon_fourth, self.icon_fifth][i],
-                            (30 * sizeMultiplier, screen_height - (120 - i * 20) * sizeMultiplier))
-                self.blit_score(name, screen_width - 54 * sizeMultiplier,
-                                screen_height - (120 - i * 20) * sizeMultiplier)
-                self.blit_score(score, 65 * sizeMultiplier + (6 - len(str(score))) * 8 * sizeMultiplier,
-                                screen_height - (120 - i * 20) * sizeMultiplier, "blue")
+                if name == self.player.name and score == self.player.score:
+                    screen.blit(
+                        [self.icon_first_yellow, self.icon_second_yellow,
+                         self.icon_third_yellow, self.icon_fourth_yellow, self.icon_fifth_yellow][i],
+                        (30 * sizeMultiplier, screen_height - (120 - i * 20) * sizeMultiplier))
+                    self.blit_score(name, screen_width - 54 * sizeMultiplier,
+                                    screen_height - (120 - i * 20) * sizeMultiplier, "yellow")
+                    self.blit_score(score, 65 * sizeMultiplier + (6 - len(str(score))) * 8 * sizeMultiplier,
+                                    screen_height - (120 - i * 20) * sizeMultiplier, "yellow")
+                else:
+                    screen.blit(
+                        [self.icon_first, self.icon_second, self.icon_third, self.icon_fourth, self.icon_fifth][i],
+                        (30 * sizeMultiplier, screen_height - (120 - i * 20) * sizeMultiplier))
+                    self.blit_score(name, screen_width - 54 * sizeMultiplier,
+                                    screen_height - (120 - i * 20) * sizeMultiplier, "blue")
+                    self.blit_score(score, 65 * sizeMultiplier + (6 - len(str(score))) * 8 * sizeMultiplier,
+                                    screen_height - (120 - i * 20) * sizeMultiplier, "blue")
 
             screen.blit(self.icon_top,
                         ((screen_width - 88 * sizeMultiplier) / 2,
