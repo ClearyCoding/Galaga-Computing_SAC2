@@ -206,15 +206,20 @@ class Game:
         self.icon_fifth = pygame.image.load('assets/gui/5th.png')
         self.icon_fifth = pygame.transform.scale(self.icon_fifth, (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_first_yellow = pygame.image.load('assets/gui/1st_yellow.png')
-        self.icon_first_yellow = pygame.transform.scale(self.icon_first_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_first_yellow = pygame.transform.scale(self.icon_first_yellow,
+                                                        (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_second_yellow = pygame.image.load('assets/gui/2nd_yellow.png')
-        self.icon_second_yellow = pygame.transform.scale(self.icon_second_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_second_yellow = pygame.transform.scale(self.icon_second_yellow,
+                                                         (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_third_yellow = pygame.image.load('assets/gui/3rd_yellow.png')
-        self.icon_third_yellow = pygame.transform.scale(self.icon_third_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_third_yellow = pygame.transform.scale(self.icon_third_yellow,
+                                                        (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_fourth_yellow = pygame.image.load('assets/gui/4th_yellow.png')
-        self.icon_fourth_yellow = pygame.transform.scale(self.icon_fourth_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_fourth_yellow = pygame.transform.scale(self.icon_fourth_yellow,
+                                                         (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_fifth_yellow = pygame.image.load('assets/gui/5th_yellow.png')
-        self.icon_fifth_yellow = pygame.transform.scale(self.icon_fifth_yellow, (23 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_fifth_yellow = pygame.transform.scale(self.icon_fifth_yellow,
+                                                        (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_heroes = pygame.image.load('assets/gui/galactic_heroes.png')
         self.icon_heroes = pygame.transform.scale(self.icon_heroes, (150 * sizeMultiplier, 7 * sizeMultiplier))
 
