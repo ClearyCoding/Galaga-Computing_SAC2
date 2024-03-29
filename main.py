@@ -72,6 +72,7 @@ class Game:
         self.start_sound = pygame.mixer.Sound('assets/sounds/start.mp3')
         self.stage_up_sound = pygame.mixer.Sound('assets/sounds/stage_up.mp3')
         self.game_over_sound = pygame.mixer.Sound('assets/sounds/game_over.mp3')
+        self.initials_sound = pygame.mixer.Sound('assets/sounds/initials.mp3')
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
@@ -855,9 +856,13 @@ class Game:
 
             pygame.display.flip()
 
+            if not pygame.mixer.get_busy():
+                self.initials_sound.play()
+
             if self.save_score:
                 save_high_score(self.player.name, self.player.score)
                 scoreboard = False
+        self.initials_sound.stop()
 
 
 class Star:
@@ -1172,5 +1177,7 @@ class Explosion:
                     (self.x_coord - self.size / self.size_shift, self.y_coord - self.size / self.size_shift))
 
 
-myGame = Game()
-myGame.start()
+while not end_game:
+    galaga = Game()
+    galaga.start()
+    del galaga
