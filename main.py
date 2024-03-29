@@ -144,21 +144,22 @@ class Game:
         self.icon_accuracy = pygame.transform.scale(self.icon_accuracy, (128 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_percentage = pygame.image.load('assets/gui/percentage.png')
         self.icon_percentage = pygame.transform.scale(self.icon_percentage, (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_question_mark = pygame.image.load('assets/gui/question_mark.png')
-        self.icon_question_mark = pygame.transform.scale(self.icon_question_mark,
-                                                         (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_question_mark_yellow = pygame.image.load('assets/gui/question_mark_yellow.png')
+        self.icon_question_mark_blue = pygame.image.load('assets/font/blue/question_mark.png')
+        self.icon_question_mark_blue = pygame.transform.scale(self.icon_question_mark_blue,
+                                                              (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_question_mark_yellow = pygame.image.load('assets/font/yellow/question_mark.png')
         self.icon_question_mark_yellow = pygame.transform.scale(self.icon_question_mark_yellow,
                                                                 (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_question_mark_white = pygame.image.load('assets/gui/question_mark_white.png')
+        self.icon_question_mark_white = pygame.image.load('assets/font/question_mark.png')
         self.icon_question_mark_white = pygame.transform.scale(self.icon_question_mark_white,
                                                                (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_decimal = pygame.image.load('assets/gui/decimal_point.png')
-        self.icon_decimal = pygame.transform.scale(self.icon_decimal, (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_decimal_blue = pygame.image.load('assets/gui/decimal_point_blue.png')
+        self.icon_decimal_yellow = pygame.image.load('assets/font/yellow/decimal_point.png')
+        self.icon_decimal_yellow = pygame.transform.scale(self.icon_decimal_yellow,
+                                                          (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_decimal_blue = pygame.image.load('assets/font/blue/decimal_point.png')
         self.icon_decimal_blue = pygame.transform.scale(self.icon_decimal_blue,
                                                         (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_decimal_white = pygame.image.load('assets/gui/decimal_point_white.png')
+        self.icon_decimal_white = pygame.image.load('assets/font/decimal_point.png')
         self.icon_decimal_white = pygame.transform.scale(self.icon_decimal_white,
                                                          (7 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_underline = pygame.image.load('assets/gui/underline.png')
@@ -639,7 +640,7 @@ class Game:
                     screen.blit(self.yellow_number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
             elif digit == "?":
                 if colour == "blue":
-                    screen.blit(self.icon_question_mark, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.icon_question_mark_blue, (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "white":
                     screen.blit(self.icon_question_mark_white, (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "yellow":
@@ -648,7 +649,7 @@ class Game:
                 if colour == "blue":
                     screen.blit(self.icon_decimal_blue, (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "yellow":
-                    screen.blit(self.icon_decimal, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.icon_decimal_yellow, (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "white":
                     screen.blit(self.icon_decimal_white, (x_coord + i * 8 * sizeMultiplier, y_coord))
             else:
