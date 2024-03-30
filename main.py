@@ -52,22 +52,27 @@ pygame.display.set_icon(window_icon)
 class Game:
     def __init__(self):
         self.players = 1
-        self.player = Player(self, 1)
+        self.current_player = 1
+        self.player1 = Player(self, 1)
+        if self.players == 2:
+            self.player2 = Player(self, 2)
+            self.player = [self.player1, self.player2][self.current_player - 1]
+        else:
+            self.player = self.player1
         self.stars = []
-        self.enemies = []
-        self.enemy_missiles = []
         self.explosions = []
+
         self.clock = pygame.time.Clock()
         self.tps = 30
         self.tick_delay = 0
         self.score_1up = 0
         self.score_2up = 0
         self.time_out = 0
-        self.game_end = False
         self.menu_open = True
         self.save_score = False
         self.save_action = None
         self.high_score_flash = False
+        self.running = False
 
         self.start_sound = pygame.mixer.Sound('assets/sounds/start.mp3')
         self.stage_up_sound = pygame.mixer.Sound('assets/sounds/stage_up.mp3')
@@ -377,8 +382,8 @@ class Game:
         ready_time_out = 100
         while ready_time_out > 0:
             self.clock.tick(self.tps)
-            ready_time_out -= 1
             self.tick_delay += 1
+            ready_time_out -= 1
 
             # Check if quit button has been pressed
             self.check_events()
@@ -394,7 +399,7 @@ class Game:
                     star.tick()
 
             # Draw Enemies
-            for enemy in self.enemies:
+            for enemy in self.player.enemies:
                 enemy.tick()
 
             self.player.tick()
@@ -406,15 +411,16 @@ class Game:
 
             pygame.display.flip()
 
-        for enemy in self.enemies:
+        for enemy in self.player.enemies:
             enemy.ticking = True
 
+        self.player.started = True
         self.run()
 
     def run(self):
         global local_high_score
-        running = True
-        while running:
+        self.running = True
+        while self.running:
             self.clock.tick(self.tps)
             self.tick_delay += 1
 
@@ -422,6 +428,11 @@ class Game:
             self.check_events(True)
             if end_game:
                 return
+
+            if self.players == 2:
+                self.player = [self.player1, self.player2][self.current_player - 1]
+                if self.current_player == 2 and not self.player.started:
+                    self.start()
 
             # Reset Screen
             screen.fill((0, 0, 0))
@@ -450,7 +461,7 @@ class Game:
             if self.time_out == 1:
                 self.spawn_enemies()
             if self.time_out == 0:
-                if len(self.enemies) == 0:  # Checks if stage progression is needed
+                if len(self.player.enemies) == 0:  # Checks if stage progression is needed
                     self.time_out = 100
             if self.time_out > 0:
                 self.time_out -= 1
@@ -463,9 +474,11 @@ class Game:
             elif self.player.player_number == 2:
                 self.score_2up = self.player.score
 
-            if self.player.score > local_high_score:
+            if self.player.score >= local_high_score:
                 local_high_score = self.player.score
                 self.high_score_flash = True
+            else:
+                self.high_score_flash = False
 
             # Draw Player
             self.player.tick()
@@ -476,14 +489,14 @@ class Game:
                     self.player.missiles.remove(missile)
                 else:
                     missile.tick()
-            for missile in self.enemy_missiles:
+            for missile in self.player.enemy_missiles:
                 if missile.y_coord < 3 or missile.y_coord > screen_height:
-                    self.enemy_missiles.remove(missile)
+                    self.player.enemy_missiles.remove(missile)
                 else:
                     missile.tick()
 
             # Draw Enemies
-            for enemy in self.enemies:
+            for enemy in self.player.enemies:
                 enemy.tick()
 
             for explosion in self.explosions:
@@ -494,19 +507,29 @@ class Game:
 
             # End Game If Player Dies
             if self.player.life < 1 and self.player.timeout < 200:
-                self.game_end = True
-
-            if self.game_end:
                 self.player.ticking = False
-                screen.blit(self.icon_game_over,
-                            ((screen_width - 67 * sizeMultiplier) / 2, (screen_height - 7 * sizeMultiplier) / 2))
-                if self.player.timeout < 100:
-                    running = False
+                if self.players == 2:
+                    screen.blit(self.icon_game_over,
+                                ((screen_width - 67 * sizeMultiplier) / 2,
+                                 (screen_height - 7 * sizeMultiplier) / 2 - 7 * sizeMultiplier))
+                    if self.player.player_number == 1:
+                        screen.blit(self.icon_player_1,
+                                    ((screen_width - 58 * sizeMultiplier) / 2,
+                                     (screen_height - 7 * sizeMultiplier) / 2 + 7 * sizeMultiplier))
+                    if self.player.player_number == 2:
+                        screen.blit(self.icon_player_2,
+                                    ((screen_width - 58 * sizeMultiplier) / 2,
+                                     (screen_height - 7 * sizeMultiplier) / 2 + 7 * sizeMultiplier))
+                else:
+                    screen.blit(self.icon_game_over,
+                                ((screen_width - 67 * sizeMultiplier) / 2, (screen_height - 7 * sizeMultiplier) / 2))
+                if self.player.timeout < 100 and not self.player.game_end:
+                    self.player.game_end = True
+                    self.game_over()
 
             # Refresh Screen
-            pygame.display.flip()
-
-        self.game_over()
+            if not self.player.game_end:
+                pygame.display.flip()
 
     def spawn_enemies(self, ticking=True):
         key = [[3, 4, 5, 6], [1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8],
@@ -518,7 +541,7 @@ class Game:
                     y_coord = 100 + (45 * row)
                     x_coord = 97.5 + (45 * column)
 
-                    self.enemies.append(Enemy(species, x_coord, y_coord, self, ticking))
+                    self.player.enemies.append(Enemy(species, x_coord, y_coord, self, ticking))
 
     def check_events(self, missiles=False, mode="normal"):
         global end_game
@@ -671,6 +694,7 @@ class Game:
         game_over_loop = True
         while game_over_loop:
             self.clock.tick(self.tps)
+            self.tick_delay += 1
 
             # Check if quit button has been pressed
             self.check_events()
@@ -735,7 +759,7 @@ class Game:
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
 
             # Scores GUI
-            self.tick_gui(mode="limited")
+            self.tick_gui(mode="end")
 
             # Update Screen
             pygame.display.flip()
@@ -792,7 +816,7 @@ class Game:
                 else:
                     star.tick()
 
-            self.tick_gui(mode="limited")
+            self.tick_gui(mode="end")
 
             if self.gui_flash:
                 screen.blit(self.icon_underline,
@@ -863,6 +887,14 @@ class Game:
                 save_high_score(self.player.name, self.player.score)
                 scoreboard = False
         self.initials_sound.stop()
+        if self.players == 2:
+            if self.player.player_number == 1 and not self.player2.game_end:
+                self.current_player = 2
+            if self.player.player_number == 2 and not self.player1.game_end:
+                self.current_player = 1
+        if (self.players == 2 and self.player1.game_end and self.player2.game_end
+                or self.players == 1 and self.player.game_end):
+            self.running = False
 
 
 class Star:
@@ -903,6 +935,9 @@ class Player:
         self.player_number = player_number
         self.score = 0
         self.fighters = 1
+        self.enemies = []
+        self.enemy_missiles = []
+
         self.name = "AAA"
         self.upgrades_reached = 0
         self.height = 16 * sizeMultiplier
@@ -913,6 +948,8 @@ class Player:
         self.timeout = 60
         self.tick_delay = 0
         self.respawning = False
+        self.started = False
+        self.game_end = False
 
         self.x_coord = screen_width / 2 - self.width / 2
         self.y_coord = screen_height - 80
@@ -997,12 +1034,12 @@ class Player:
                 self.shotsFired += 1
 
     def check_collision(self):
-        for missile in self.game.enemy_missiles:
+        for missile in self.enemy_missiles:
             if (abs(self.x_coord + self.width / 2 - missile.x_coord) <
                     self.width / 2 + missile.width / 2 and abs(
                         self.y_coord - missile.y_coord) <
                     self.height / 2 + missile.height / 2):
-                self.game.enemy_missiles.remove(missile)
+                self.enemy_missiles.remove(missile)
                 if self.fighters <= 1:
                     self.die()
                 else:
@@ -1018,6 +1055,9 @@ class Player:
         self.game.explosions.append(Explosion(
             self.x_coord + self.width, self.y_coord + self.height / 2, "player", self.game))
         self.timeout = 250
+        if (self.game.players == 2 and self.life >= 1 and not
+           [self.game.player1, self.game.player2][self.player_number % 2].game_end):
+            self.game.current_player = self.game.current_player % 2 + 1
 
     def add_fighters(self, operator=1):
         self.fighters += operator
@@ -1048,13 +1088,13 @@ class Missile:
                 if self.team == "player":
                     self.y_coord -= 30
                 elif self.team == "enemy":
-                    self.y_coord += 30
+                    self.y_coord += 20
 
             screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
     def check_collision(self):
         if self.team == "player":
-            for enemy in self.game.enemies:
+            for enemy in self.game.player.enemies:
                 if (abs(self.x_coord - enemy.x_coord) <
                         self.width / 2 + enemy.width / 2 and abs(
                             self.y_coord - enemy.y_coord) <
@@ -1067,7 +1107,7 @@ class Missile:
                     else:
                         enemy.hurt_sound.play()
                     self.game.player.missiles.remove(self)
-            for missile in self.game.enemy_missiles:
+            for missile in self.game.player.enemy_missiles:
                 if (abs(self.x_coord - missile.x_coord) <
                         self.width / 2 + missile.width / 2 and abs(
                             self.y_coord - missile.y_coord) <
@@ -1077,7 +1117,7 @@ class Missile:
                     self.game.player.hits += 1
                     self.game.explosions.append(Explosion(
                         self.x_coord + self.width / 2, self.y_coord + self.height / 2, "enemy", self.game))
-                    self.game.enemy_missiles.remove(missile)
+                    self.game.player.enemy_missiles.remove(missile)
                     try:
                         self.game.player.missiles.remove(self)
                     except ValueError:
@@ -1126,15 +1166,15 @@ class Enemy:
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
     def shoot(self):
-        self.game.enemy_missiles.append(Missile(self.x_coord, self.y_coord, "enemy"))
+        self.game.player.enemy_missiles.append(Missile(self.x_coord, self.y_coord, "enemy"))
 
     def die(self):
         self.game.player.score += [[50, 100], [80, 160], [150, 400]][self.species][self.diving]
         self.death_sound.play()
         self.game.explosions.append(Explosion(
             self.x_coord + self.width / 2, self.y_coord + self.height / 2, "enemy", self.game))
-        if self in self.game.enemies:
-            self.game.enemies.remove(self)
+        if self in self.game.player.enemies:
+            self.game.player.enemies.remove(self)
 
 
 class Explosion:
