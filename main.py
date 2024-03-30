@@ -234,6 +234,7 @@ class Game:
             self.stars.append(Star())
 
     def start(self):
+        global local_high_score
         menu_position = True
         while self.menu_open:
             self.clock.tick(self.tps)
@@ -312,6 +313,12 @@ class Game:
                     star.regenerate()
                 else:
                     star.tick(0)
+
+            if self.player.score >= local_high_score:
+                local_high_score = self.player.score
+                self.high_score_flash = True
+            else:
+                self.high_score_flash = False
 
             screen.blit(self.icon_start,
                         ((screen_width - 37 * sizeMultiplier) / 2,
@@ -525,6 +532,7 @@ class Game:
                                 ((screen_width - 67 * sizeMultiplier) / 2, (screen_height - 7 * sizeMultiplier) / 2))
                 if self.player.timeout < 100 and not self.player.game_end:
                     self.player.game_end = True
+                    self.save_score = False
                     self.game_over()
 
             # Refresh Screen
@@ -989,6 +997,10 @@ class Player:
                 screen.blit(self.image, (self.x_coord + self.fighter_width * fighter, self.y_coord - self.height / 2))
         else:
             if self.timeout == 220:
+                if (self.game.players == 2 and self.life >= 1 and not
+                   [self.game.player1, self.game.player2][self.player_number % 2].game_end):
+                    self.game.current_player = self.game.current_player % 2 + 1
+            if self.timeout == 219:
                 if self.life > 0:
                     self.respawn_sound.play()
             if self.timeout < 120 and self.life >= 1:
@@ -999,7 +1011,8 @@ class Player:
                     for fighter in range(self.fighters):
                         screen.blit(self.image,
                                     (self.x_coord + self.fighter_width * fighter, self.y_coord - self.height / 2))
-            if self.timeout < 75 and self.life >= 1:
+            if (self.timeout < 75 and self.life >= 1 and self.game.players == 1 or
+                    self.timeout < 210 and self.life >= 1 and self.game.players == 2):
                 screen.blit(self.game.icon_ready,
                             ((screen_width - 37 * sizeMultiplier) / 2, (screen_height - 12 * sizeMultiplier) / 2))
                 if self.player_number == 1 and self.game.players == 2:
@@ -1054,10 +1067,10 @@ class Player:
         self.death_sound.play()
         self.game.explosions.append(Explosion(
             self.x_coord + self.width, self.y_coord + self.height / 2, "player", self.game))
-        self.timeout = 250
-        if (self.game.players == 2 and self.life >= 1 and not
-           [self.game.player1, self.game.player2][self.player_number % 2].game_end):
-            self.game.current_player = self.game.current_player % 2 + 1
+        if self.game.players == 2 and self.life > 0:
+            self.timeout = 325
+        else:
+            self.timeout = 250
 
     def add_fighters(self, operator=1):
         self.fighters += operator
