@@ -936,8 +936,8 @@ class Star:
 
 
 class Player:
-    def __init__(self, game=None, player_number=1):
-        self.life = initial_lives
+    def __init__(self, game=None, player_number=1, lives=initial_lives):
+        self.life = lives
         self.lives_remaining = self.life - 1
         self.stage = 1
         self.player_number = player_number
@@ -968,6 +968,7 @@ class Player:
         self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
         self.death_sound = pygame.mixer.Sound('assets/sounds/death_player.mp3')
         self.respawn_sound = pygame.mixer.Sound('assets/sounds/respawn_player.mp3')
+        self.bonus_life_sound = pygame.mixer.Sound('assets/sounds/bonus_life.mp3')
 
         self.image = pygame.image.load('assets/player.png')
         self.image = pygame.transform.scale(self.image, (self.fighter_width, self.height))
@@ -980,10 +981,12 @@ class Player:
         if self.score >= life_bonus[0] and self.upgrades_reached == 0:
             self.upgrades_reached += 1
             self.life += 1
+            self.bonus_life_sound.play()
 
         if self.score >= life_bonus[1] + life_bonus[2] * (abs(self.upgrades_reached - 1)):
             self.upgrades_reached += 1
             self.life += 1
+            self.bonus_life_sound.play()
 
         if self.ticking:
             self.lives_remaining = self.life - 1
