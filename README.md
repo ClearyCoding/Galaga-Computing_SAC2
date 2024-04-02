@@ -5,6 +5,7 @@
   </a>
 
   <h3 align="center">Computing 1/2 SAC #2</h3>
+  <h4 align="center">Galaga Recreation</h4>
 
   <p align="center">
     By Alexander Cleary
