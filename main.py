@@ -1143,6 +1143,8 @@ class Missile:
 class Enemy:
     def __init__(self, species=0, x_coord=screen_width / 2, y_coord=60, game=None, ticking=True):
         self.species = species
+        self.home_x = x_coord
+        self.home_y = y_coord
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.game = game
