@@ -74,10 +74,22 @@ class Game:
         self.high_score_flash = False
         self.running = False
 
-        self.start_sound = pygame.mixer.Sound('assets/sounds/start.mp3')
-        self.stage_up_sound = pygame.mixer.Sound('assets/sounds/stage_up.mp3')
-        self.game_over_sound = pygame.mixer.Sound('assets/sounds/game_over.mp3')
-        self.initials_sound = pygame.mixer.Sound('assets/sounds/initials.mp3')
+        self.sounds = {
+            'start': pygame.mixer.Sound('assets/sounds/start.mp3'),
+            'stage_up': pygame.mixer.Sound('assets/sounds/stage_up.mp3'),
+            'game_over': pygame.mixer.Sound('assets/sounds/game_over.mp3'),
+            'initials': pygame.mixer.Sound('assets/sounds/initials.mp3'),
+
+            'player_firing': pygame.mixer.Sound('assets/sounds/firing.mp3'),
+            'player_death': pygame.mixer.Sound('assets/sounds/death_player.mp3'),
+            'player_respawn': pygame.mixer.Sound('assets/sounds/respawn_player.mp3'),
+            'player_bonus_life': pygame.mixer.Sound('assets/sounds/bonus_life.mp3'),
+
+            'enemy_death_a': pygame.mixer.Sound('assets/sounds/enemy_death_a.mp3'),
+            'enemy_death_b': pygame.mixer.Sound('assets/sounds/enemy_death_b.mp3'),
+            'enemy_death_c': pygame.mixer.Sound('assets/sounds/enemy_death_c.mp3'),
+            'enemy_hurt': pygame.mixer.Sound('assets/sounds/enemy_hurt.mp3'),
+        }
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
@@ -296,7 +308,7 @@ class Game:
             pygame.display.flip()
 
         starting = True
-        self.start_sound.play()
+        self.sounds['start'].play()
         while starting:
             self.clock.tick(self.tps)
             self.tick_delay += 1
@@ -370,7 +382,7 @@ class Game:
                                 + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(start_stage)),
                                 screen_height / 2 - 3.5 * sizeMultiplier, "blue")
             if stage_time_out == 55:
-                self.stage_up_sound.play()
+                self.sounds['stage_up'].play()
                 start_stage += 1
 
             if stage_time_out <= 55:
@@ -463,7 +475,7 @@ class Game:
                                 + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.player.stage)),
                                 screen_height / 2 - 3.5 * sizeMultiplier, "blue")
             if self.time_out == 55:
-                self.stage_up_sound.play()
+                self.sounds['stage_up'].play()
                 self.player.stage += 1
             if self.time_out == 1:
                 self.spawn_enemies()
@@ -698,7 +710,7 @@ class Game:
 
     def game_over(self):
         self.player.ticking = False
-        self.game_over_sound.play()
+        self.sounds['game_over'].play()
         game_over_loop = True
         while game_over_loop:
             self.clock.tick(self.tps)
@@ -889,12 +901,12 @@ class Game:
             pygame.display.flip()
 
             if not pygame.mixer.get_busy():
-                self.initials_sound.play()
+                self.sounds['initials'].play()
 
             if self.save_score:
                 save_high_score(self.player.name, self.player.score)
                 scoreboard = False
-        self.initials_sound.stop()
+        self.sounds['initials'].stop()
         if self.players == 2:
             if self.player.player_number == 1 and not self.player2.game_end:
                 self.current_player = 2
@@ -965,10 +977,6 @@ class Player:
         self.hits = 0
 
         self.missiles = []
-        self.firing_sound = pygame.mixer.Sound('assets/sounds/firing.mp3')
-        self.death_sound = pygame.mixer.Sound('assets/sounds/death_player.mp3')
-        self.respawn_sound = pygame.mixer.Sound('assets/sounds/respawn_player.mp3')
-        self.bonus_life_sound = pygame.mixer.Sound('assets/sounds/bonus_life.mp3')
 
         self.image = pygame.image.load('assets/player.png')
         self.image = pygame.transform.scale(self.image, (self.fighter_width, self.height))
@@ -981,12 +989,12 @@ class Player:
         if self.score >= life_bonus[0] and self.upgrades_reached == 0:
             self.upgrades_reached += 1
             self.life += 1
-            self.bonus_life_sound.play()
+            self.game.sounds['player_bonus_life'].play()
 
         if self.score >= life_bonus[1] + life_bonus[2] * (abs(self.upgrades_reached - 1)):
             self.upgrades_reached += 1
             self.life += 1
-            self.bonus_life_sound.play()
+            self.game.sounds['player_bonus_life'].play()
 
         if self.ticking:
             self.lives_remaining = self.life - 1
@@ -1005,7 +1013,7 @@ class Player:
                     self.game.current_player = self.game.current_player % 2 + 1
             if self.timeout == 219:
                 if self.life > 0:
-                    self.respawn_sound.play()
+                    self.game.sounds['player_respawn'].play()
             if self.timeout < 120 and self.life >= 1:
                 self.lives_remaining = self.life - 1
                 if self.tick_delay % 10 == 0:
@@ -1027,7 +1035,7 @@ class Player:
                                 ((screen_width - 58 * sizeMultiplier) / 2,
                                  (screen_height - 7 * sizeMultiplier) / 2 + 12 * sizeMultiplier))
             if self.timeout < 1:
-                self.respawn_sound.stop()
+                self.game.sounds['player_respawn'].stop()
                 self.ticking = True
             else:
                 self.timeout -= 1
@@ -1043,7 +1051,7 @@ class Player:
 
     def shoot(self):
         if len(self.missiles) < 2 * self.fighters:
-            self.firing_sound.play()
+            self.game.sounds['player_firing'].play()
             for fighter in range(self.fighters):
                 self.missiles.append(Missile(self.x_coord + self.fighter_width / 2 + fighter * self.fighter_width,
                                              self.y_coord, "player", self.game))
@@ -1059,7 +1067,7 @@ class Player:
                 if self.fighters <= 1:
                     self.die()
                 else:
-                    self.death_sound.play()
+                    self.game.sounds['player_death'].play()
                     self.game.explosions.append(Explosion(
                         missile.x_coord, self.y_coord + self.height / 2, "player", self.game))
                     self.add_fighters(-1)
@@ -1067,7 +1075,7 @@ class Player:
     def die(self):
         self.ticking = False
         self.life -= 1
-        self.death_sound.play()
+        self.game.sounds['player_death'].play()
         self.game.explosions.append(Explosion(
             self.x_coord + self.width, self.y_coord + self.height / 2, "player", self.game))
         if self.game.players == 2 and self.life > 0:
@@ -1121,7 +1129,7 @@ class Missile:
                     if enemy.health <= 0:
                         enemy.die()
                     else:
-                        enemy.hurt_sound.play()
+                        self.game.sounds['enemy_hurt'].play()
                     self.game.player.missiles.remove(self)
             for missile in self.game.player.enemy_missiles:
                 if (abs(self.x_coord - missile.x_coord) <
@@ -1152,9 +1160,7 @@ class Enemy:
         self.ticking = ticking
         self.tick_delay = 0
         self.health = [1, 1, 2][self.species]
-        self.death_sound = pygame.mixer.Sound(['assets/sounds/enemy_death_a.mp3', 'assets/sounds/enemy_death_b.mp3',
-                                               'assets/sounds/enemy_death_c.mp3'][self.species])
-        self.hurt_sound = pygame.mixer.Sound('assets/sounds/enemy_hurt.mp3')
+        self.death_sound = ['enemy_death_a', 'enemy_death_b', 'enemy_death_c'][self.species]
 
         self.width = sizeMultiplier * [13, 13, 15][self.species]
         self.height = sizeMultiplier * [10, 10, 16][self.species]
@@ -1188,7 +1194,7 @@ class Enemy:
 
     def die(self):
         self.game.player.score += [[50, 100], [80, 160], [150, 400]][self.species][self.diving]
-        self.death_sound.play()
+        self.game.sounds[self.death_sound].play()
         self.game.explosions.append(Explosion(
             self.x_coord + self.width / 2, self.y_coord + self.height / 2, "enemy", self.game))
         if self in self.game.player.enemies:
