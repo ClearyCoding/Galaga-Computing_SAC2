@@ -58,13 +58,14 @@ class Game:
             self.player2 = Player(self, 2)
             self.player = [self.player1, self.player2][self.current_player - 1]
         else:
+            self.player2 = None
             self.player = self.player1
         self.stars = []
         self.explosions = []
 
         self.clock = pygame.time.Clock()
         self.tps = 30
-        self.tick_delay = 0
+        self.current_tick = 0
         self.score_1up = 0
         self.score_2up = 0
         self.time_out = 0
@@ -73,6 +74,8 @@ class Game:
         self.save_action = None
         self.high_score_flash = False
         self.running = False
+        self.select_players = False
+        self.last_interaction = 0
 
         self.sounds = {
             'start': pygame.mixer.Sound('assets/sounds/start.mp3'),
@@ -241,24 +244,33 @@ class Game:
                                                         (23 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_heroes = pygame.image.load('assets/gui/galactic_heroes.png')
         self.icon_heroes = pygame.transform.scale(self.icon_heroes, (150 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_select_players = pygame.image.load('assets/gui/select_players.png')
+        self.icon_select_players = pygame.transform.scale(self.icon_select_players,
+                                                          (164 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_1_player = pygame.image.load('assets/gui/one_player.png')
+        self.icon_1_player = pygame.transform.scale(self.icon_1_player, (58 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_2_players = pygame.image.load('assets/gui/two_players.png')
+        self.icon_2_players = pygame.transform.scale(self.icon_2_players, (66 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_pointer = pygame.image.load('assets/gui/pointer.png')
+        self.icon_pointer = pygame.transform.scale(self.icon_pointer, (7 * sizeMultiplier, 7 * sizeMultiplier))
 
         for star in range(0, 200):
             self.stars.append(Star())
 
     def start(self):
         global local_high_score
-        menu_position = True
+        menu_position = 0
         while self.menu_open:
             self.clock.tick(self.tps)
-            self.tick_delay += 1
+            self.current_tick += 1
 
             # Check if quit button has been pressed
             self.check_events(mode="menu")
             if end_game:
                 return
 
-            if self.tick_delay % 400 == 0:
-                menu_position = not menu_position
+            if self.current_tick % 400 == 0:
+                menu_position = (menu_position + 1) % 2
 
             screen.fill((0, 0, 0))
 
@@ -270,48 +282,76 @@ class Game:
 
             self.tick_gui("limited")
 
-            if self.gui_flash:
-                screen.blit(self.icon_push_start,
-                            ((screen_width - 135 * sizeMultiplier) / 2,
-                             screen_height / 4))
-            if menu_position:
-                screen.blit(self.icon_first_bonus,
-                            ((screen_width - 208 * sizeMultiplier) / 2,
-                             (screen_height - 16 * sizeMultiplier) / 2 + sizeMultiplier))
-                screen.blit(self.icon_second_bonus,
-                            ((screen_width - 208 * sizeMultiplier) / 2,
+            if self.select_players:
+                if self.current_tick - self.last_interaction > self.tps * 30:
+                    self.players = 1
+                    self.select_players = False
+
+                screen.blit(self.icon_select_players,
+                            ((screen_width - 164 * sizeMultiplier) / 2,
+                             (screen_height - 16 * sizeMultiplier) / 2 - 32 * sizeMultiplier))
+                screen.blit(self.icon_1_player,
+                            ((screen_width - 82 * sizeMultiplier) / 2 + 16 * sizeMultiplier,
+                             (screen_height - 16 * sizeMultiplier) / 2))
+                screen.blit(self.icon_2_players,
+                            ((screen_width - 82 * sizeMultiplier) / 2 + 16 * sizeMultiplier,
                              (screen_height - 16 * sizeMultiplier) / 2 + 32 * sizeMultiplier))
-                screen.blit(self.icon_third_bonus,
-                            ((screen_width - 208 * sizeMultiplier) / 2,
-                             (screen_height - 16 * sizeMultiplier) / 2 + 64 * sizeMultiplier))
+                if self.players == 1:
+                    screen.blit(self.icon_pointer,
+                                ((screen_width - 82 * sizeMultiplier) / 2,
+                                 (screen_height - 16 * sizeMultiplier) / 2))
+                elif self.players == 2:
+                    screen.blit(self.icon_pointer,
+                                ((screen_width - 82 * sizeMultiplier) / 2,
+                                 (screen_height - 16 * sizeMultiplier) / 2 + 32 * sizeMultiplier))
             else:
-                screen.blit(self.icon_top, ((screen_width - 88 * sizeMultiplier) / 2, screen_height / 2))
-                screen.blit(self.icon_heroes, (screen_width / 2 - 75 * sizeMultiplier,
-                                               screen_height - 200 * sizeMultiplier))
-                screen.blit(self.icon_name, (screen_width - 61 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
-                screen.blit(self.icon_score, (65 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
+                if menu_position == 0:
+                    screen.blit(self.icon_first_bonus,
+                                ((screen_width - 208 * sizeMultiplier) / 2,
+                                 (screen_height - 16 * sizeMultiplier) / 2))
+                    screen.blit(self.icon_second_bonus,
+                                ((screen_width - 208 * sizeMultiplier) / 2,
+                                 (screen_height - 16 * sizeMultiplier) / 2 + 32 * sizeMultiplier))
+                    screen.blit(self.icon_third_bonus,
+                                ((screen_width - 208 * sizeMultiplier) / 2,
+                                 (screen_height - 16 * sizeMultiplier) / 2 + 64 * sizeMultiplier))
+                elif menu_position == 1:
+                    screen.blit(self.icon_top, ((screen_width - 88 * sizeMultiplier) / 2, screen_height / 2))
+                    screen.blit(self.icon_heroes, (screen_width / 2 - 75 * sizeMultiplier,
+                                                   screen_height - 200 * sizeMultiplier))
+                    screen.blit(self.icon_name, (screen_width - 61 * sizeMultiplier, screen_height - 140 *
+                                                 sizeMultiplier))
+                    screen.blit(self.icon_score, (65 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
 
-                for i, (name, score) in enumerate(high_scores.items()):
-                    if i > 4:
-                        break
-                    screen.blit(
-                        [self.icon_first, self.icon_second, self.icon_third, self.icon_fourth, self.icon_fifth][i],
-                        (30 * sizeMultiplier, screen_height - (120 - i * 20) * sizeMultiplier))
-                    self.blit_score(score, 65 * sizeMultiplier + (6 - len(str(score))) * 8 * sizeMultiplier,
-                                    screen_height - (120 - i * 20) * sizeMultiplier, "blue")
-                    self.blit_score(name, screen_width - 54 * sizeMultiplier,
-                                    screen_height - (120 - i * 20) * sizeMultiplier, "blue")
+                    for i, (name, score) in enumerate(high_scores.items()):
+                        if i > 4:
+                            break
+                        screen.blit(
+                            [self.icon_first, self.icon_second, self.icon_third, self.icon_fourth, self.icon_fifth][i],
+                            (30 * sizeMultiplier, screen_height - (120 - i * 20) * sizeMultiplier))
+                        self.blit_score(score, 65 * sizeMultiplier + (6 - len(str(score))) * 8 * sizeMultiplier,
+                                        screen_height - (120 - i * 20) * sizeMultiplier, "blue")
+                        self.blit_score(name, screen_width - 54 * sizeMultiplier,
+                                        screen_height - (120 - i * 20) * sizeMultiplier, "blue")
 
-            screen.blit(self.icon_free_play,
-                        (5 * sizeMultiplier, screen_height - 2 * sizeMultiplier - 7 * sizeMultiplier))
+                if self.gui_flash:
+                    screen.blit(self.icon_push_start,
+                                ((screen_width - 135 * sizeMultiplier) / 2,
+                                 screen_height / 4))
+                screen.blit(self.icon_free_play,
+                            (5 * sizeMultiplier, screen_height - 2 * sizeMultiplier - 7 * sizeMultiplier))
 
             pygame.display.flip()
+
+        if self.players == 2 and not self.player2:
+            self.player2 = Player(self, 2)
+            self.player = [self.player1, self.player2][self.current_player - 1]
 
         starting = True
         self.sounds['start'].play()
         while starting:
             self.clock.tick(self.tps)
-            self.tick_delay += 1
+            self.current_tick += 1
 
             # Check if quit button has been pressed
             self.check_events()
@@ -363,7 +403,7 @@ class Game:
                 return
 
             screen.fill((0, 0, 0))
-            self.tick_delay += 1
+            self.current_tick += 1
 
             for star in self.stars:
                 if star.y_coord > screen_height - 3:
@@ -401,7 +441,7 @@ class Game:
         ready_time_out = 100
         while ready_time_out > 0:
             self.clock.tick(self.tps)
-            self.tick_delay += 1
+            self.current_tick += 1
             ready_time_out -= 1
 
             # Check if quit button has been pressed
@@ -441,7 +481,7 @@ class Game:
         self.running = True
         while self.running:
             self.clock.tick(self.tps)
-            self.tick_delay += 1
+            self.current_tick += 1
 
             # Check if quit button has been pressed
             self.check_events(True)
@@ -570,6 +610,9 @@ class Game:
                 save_high_score("???", self.score_2up)
                 end_game = True
 
+            if event.type in {pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN}:
+                self.last_interaction = self.current_tick
+
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     save_high_score("???", self.score_1up)
@@ -581,8 +624,15 @@ class Game:
                     if self.player.ticking:
                         self.player.shoot()
 
-                if event.key == pygame.K_RETURN and mode == "menu":
+                if event.key == pygame.K_RETURN and self.select_players:
                     self.menu_open = False
+                if event.key == pygame.K_UP and self.select_players and self.players == 2:
+                    self.players = self.players % 2 + 1
+                if event.key == pygame.K_DOWN and self.select_players and self.players == 1:
+                    self.players = self.players % 2 + 1
+
+                if event.key == pygame.K_RETURN and mode == "menu":
+                    self.select_players = True
                 if event.key == pygame.K_RETURN and mode == "save":
                     self.save_score = True
                 if event.key == pygame.K_UP and mode == "save":
@@ -597,7 +647,7 @@ class Game:
     def tick_gui(self, mode="all"):
         global local_high_score
 
-        if self.tick_delay % 15 == 0:
+        if self.current_tick % 15 == 0:
             self.gui_flash = not self.gui_flash
 
         if mode == "all" or mode == "stage_animation":
@@ -712,7 +762,7 @@ class Game:
         game_over_loop = True
         while game_over_loop:
             self.clock.tick(self.tps)
-            self.tick_delay += 1
+            self.current_tick += 1
 
             # Check if quit button has been pressed
             self.check_events()
@@ -799,7 +849,7 @@ class Game:
                             'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '.']
         while scoreboard:
             self.clock.tick(self.tps)
-            self.tick_delay += 1
+            self.current_tick += 1
 
             # Reset Screen
             screen.fill((0, 0, 0))
