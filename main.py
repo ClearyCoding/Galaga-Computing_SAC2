@@ -464,8 +464,6 @@ class Game:
                     star.tick()
 
             # New Stage Animations
-            if self.player.stage > 255:
-                self.player.stage = 255
             if 10 < self.time_out <= 70:
                 screen.blit(self.icon_stage,
                             (screen_width / 2 - (38 * sizeMultiplier + 4 * 8 * sizeMultiplier) / 2,
@@ -476,7 +474,7 @@ class Game:
                                 screen_height / 2 - 3.5 * sizeMultiplier, "blue")
             if self.time_out == 55:
                 self.sounds['stage_up'].play()
-                self.player.stage += 1
+                self.player.stage = (self.player.stage + 1) % 256
             if self.time_out == 1:
                 self.spawn_enemies()
             if self.time_out == 0:
