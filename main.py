@@ -51,6 +51,53 @@ pygame.display.set_icon(window_icon)
 
 class Game:
     def __init__(self):
+        self.sounds = {
+            'start': pygame.mixer.Sound('assets/sounds/start.mp3'),
+            'stage_up': pygame.mixer.Sound('assets/sounds/stage_up.mp3'),
+            'game_over': pygame.mixer.Sound('assets/sounds/game_over.mp3'),
+            'initials': pygame.mixer.Sound('assets/sounds/initials.mp3'),
+
+            'player_firing': pygame.mixer.Sound('assets/sounds/firing.mp3'),
+            'player_death': pygame.mixer.Sound('assets/sounds/death_player.mp3'),
+            'player_respawn': pygame.mixer.Sound('assets/sounds/respawn_player.mp3'),
+            'player_bonus_life': pygame.mixer.Sound('assets/sounds/bonus_life.mp3'),
+
+            'enemy_death_a': pygame.mixer.Sound('assets/sounds/enemy_death_a.mp3'),
+            'enemy_death_b': pygame.mixer.Sound('assets/sounds/enemy_death_b.mp3'),
+            'enemy_death_c': pygame.mixer.Sound('assets/sounds/enemy_death_c.mp3'),
+            'enemy_hurt': pygame.mixer.Sound('assets/sounds/enemy_hurt.mp3'),
+        }
+
+        self.sprites = {
+            'player': pygame.image.load('assets/player.png'),
+            'missile_player': pygame.image.load('assets/missile_player.png'),
+            'missile_enemy': pygame.image.load('assets/missile_enemy.png'),
+            'player_explosion': [
+                pygame.image.load('assets/player_explosion0.png'),
+                pygame.image.load('assets/player_explosion1.png'),
+                pygame.image.load('assets/player_explosion2.png'),
+                pygame.image.load('assets/player_explosion3.png'),
+                pygame.image.load('assets/player_explosion3.png'),
+            ],
+            'enemy_explosion': [
+                pygame.image.load('assets/explosion0.png'),
+                pygame.image.load('assets/explosion1.png'),
+                pygame.image.load('assets/explosion2.png'),
+                pygame.image.load('assets/explosion3.png'),
+                pygame.image.load('assets/explosion4.png'),
+            ],
+            'enemy': {
+                '0a': pygame.image.load('assets/enemy0a.png'),
+                '0b': pygame.image.load('assets/enemy0b.png'),
+                '1a': pygame.image.load('assets/enemy1a.png'),
+                '1b': pygame.image.load('assets/enemy1b.png'),
+                '2a': pygame.image.load('assets/enemy2a.png'),
+                '2b': pygame.image.load('assets/enemy2b.png'),
+                '2c': pygame.image.load('assets/enemy2c.png'),
+                '2d': pygame.image.load('assets/enemy2d.png'),
+            },
+        }
+
         self.players = 1
         self.current_player = 1
         self.player1 = Player(self, 1)
@@ -76,23 +123,6 @@ class Game:
         self.running = False
         self.select_players = False
         self.last_interaction = 0
-
-        self.sounds = {
-            'start': pygame.mixer.Sound('assets/sounds/start.mp3'),
-            'stage_up': pygame.mixer.Sound('assets/sounds/stage_up.mp3'),
-            'game_over': pygame.mixer.Sound('assets/sounds/game_over.mp3'),
-            'initials': pygame.mixer.Sound('assets/sounds/initials.mp3'),
-
-            'player_firing': pygame.mixer.Sound('assets/sounds/firing.mp3'),
-            'player_death': pygame.mixer.Sound('assets/sounds/death_player.mp3'),
-            'player_respawn': pygame.mixer.Sound('assets/sounds/respawn_player.mp3'),
-            'player_bonus_life': pygame.mixer.Sound('assets/sounds/bonus_life.mp3'),
-
-            'enemy_death_a': pygame.mixer.Sound('assets/sounds/enemy_death_a.mp3'),
-            'enemy_death_b': pygame.mixer.Sound('assets/sounds/enemy_death_b.mp3'),
-            'enemy_death_c': pygame.mixer.Sound('assets/sounds/enemy_death_c.mp3'),
-            'enemy_hurt': pygame.mixer.Sound('assets/sounds/enemy_hurt.mp3'),
-        }
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
@@ -1026,8 +1056,7 @@ class Player:
 
         self.missiles = []
 
-        self.image = pygame.image.load('assets/player.png')
-        self.image = pygame.transform.scale(self.image, (self.fighter_width, self.height))
+        self.image = pygame.transform.scale(self.game.sprites['player'], (self.fighter_width, self.height))
 
     def tick(self):
         global life_bonus
@@ -1148,10 +1177,9 @@ class Missile:
         self.height = 8 * sizeMultiplier
 
         if self.team == "player":
-            self.image = pygame.image.load('assets/missile_player.png')
+            self.image = pygame.transform.scale(self.game.sprites['missile_player'], (self.width, self.height))
         elif self.team == "enemy":
-            self.image = pygame.image.load('assets/missile_enemy.png')
-        self.image = pygame.transform.scale(self.image, (self.width, self.height))
+            self.image = pygame.transform.scale(self.game.sprites['missile_enemy'], (self.width, self.height))
 
     def tick(self):
         if self.ticking:
@@ -1213,8 +1241,9 @@ class Enemy:
         self.width = sizeMultiplier * [13, 13, 15][self.species]
         self.height = sizeMultiplier * [10, 10, 16][self.species]
 
-        self.image = pygame.image.load(['assets/enemy0a.png', 'assets/enemy1a.png',
-                                        ['assets/enemy2c.png', 'assets/enemy2a.png'][self.health - 1]][self.species])
+        self.image = self.game.sprites['enemy'][
+            ['0a', '1a', ['2a', '2c'][self.health < 2]][self.species]
+        ]
         self.animated = False
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
@@ -1224,13 +1253,13 @@ class Enemy:
             self.animated = not self.animated
 
         if self.animated:
-            self.image = pygame.image.load(['assets/enemy0b.png', 'assets/enemy1b.png',
-                                            ['assets/enemy2b.png', 'assets/enemy2d.png'][self.health < 2]]
-                                           [self.species])
+            self.image = self.game.sprites['enemy'][
+                ['0b', '1b', ['2b', '2d'][self.health < 2]][self.species]
+            ]
         else:
-            self.image = pygame.image.load(['assets/enemy0a.png', 'assets/enemy1a.png',
-                                            ['assets/enemy2a.png', 'assets/enemy2c.png'][self.health < 2]]
-                                           [self.species])
+            self.image = self.game.sprites['enemy'][
+                ['0a', '1a', ['2a', '2c'][self.health < 2]][self.species]
+            ]
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
         if random.randint(1, 1000) == 1 and self.game.player.ticking and self.ticking:
@@ -1238,7 +1267,7 @@ class Enemy:
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
     def shoot(self):
-        self.game.player.enemy_missiles.append(Missile(self.x_coord, self.y_coord, "enemy"))
+        self.game.player.enemy_missiles.append(Missile(self.x_coord, self.y_coord, "enemy", game=self.game))
 
     def die(self):
         self.game.player.score += [[50, 100], [80, 160], [150, 400]][self.species][self.diving]
@@ -1259,12 +1288,12 @@ class Explosion:
         self.target = target
         if self.target == "player":
             self.size = 64
-            self.image = pygame.image.load('assets/player_explosion0.png')
+            self.image = self.game.sprites['player_explosion'][0]
             self.animation_speed = 6
             self.size_shift = 1.25
         elif self.target == "enemy":
             self.size = 32
-            self.image = pygame.image.load('assets/explosion0.png')
+            self.image = self.game.sprites['enemy_explosion'][0]
             self.animation_speed = 3
             self.size_shift = 1
 
@@ -1275,15 +1304,9 @@ class Explosion:
             self.game.explosions.remove(self)
         else:
             if self.target == "player":
-                self.image = pygame.image.load(
-                    ['assets/player_explosion0.png', 'assets/player_explosion1.png', 'assets/player_explosion2.png',
-                     'assets/player_explosion3.png', 'assets/player_explosion3.png']
-                    [self.animation])
+                self.image = self.game.sprites['player_explosion'][self.animation]
             elif self.target == "enemy":
-                self.image = pygame.image.load(
-                    ['assets/explosion0.png', 'assets/explosion1.png', 'assets/explosion2.png',
-                     'assets/explosion3.png', 'assets/explosion4.png']
-                    [self.animation])
+                self.image = self.game.sprites['enemy_explosion'][self.animation]
         self.image = pygame.transform.scale(self.image, (self.size, self.size))
         screen.blit(self.image,
                     (self.x_coord - self.size / self.size_shift, self.y_coord - self.size / self.size_shift))
