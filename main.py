@@ -9,6 +9,9 @@ import math
 # The number of lives the player starts with
 initial_lives = 3
 
+sizeMultiplier = 2.5
+end_game = False
+
 high_scores = {}
 
 
@@ -32,17 +35,15 @@ if list(high_scores.values()):
     local_high_score = list(high_scores.values())[0]
 else:
     local_high_score = 0
-sizeMultiplier = 2.5
-end_game = False
 
 # Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
 life_bonus = [20000, 60000, 60000]
 
 # Initialize Pygame
 pygame.init()
-screen_width = 600
-screen_height = 800
-screen = pygame.display.set_mode((screen_width, screen_height))
+screen_width = 240 * sizeMultiplier
+screen_height = 320 * sizeMultiplier
+screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 pygame.display.set_caption("Galaga - Computing 1/2 SAC #2")
 pygame.mouse.set_visible(False)
 window_icon = pygame.image.load('assets/icon.png')
@@ -89,7 +90,7 @@ class Game:
             'enemy': {
                 '0a': pygame.image.load('assets/enemy0a.png'),
                 '0b': pygame.image.load('assets/enemy0b.png'),
-                '1a': pygame.image.load('assets/enemy1a.png'),
+                '1a': pygame.image.load('assets/enemy1a.png'),  # TODO: Fix Bright Spots On Butterfly Texture
                 '1b': pygame.image.load('assets/enemy1b.png'),
                 '2a': pygame.image.load('assets/enemy2a.png'),
                 '2b': pygame.image.load('assets/enemy2b.png'),
@@ -243,7 +244,7 @@ class Game:
         self.icon_select_players = pygame.image.load('assets/gui/select_players.png')
         self.icon_select_players = pygame.transform.scale(self.icon_select_players,
                                                           (164 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_1_player = pygame.image.load('assets/gui/one_player.png')
+        self.icon_1_player = pygame.image.load('assets/gui/one_player.png')  # TODO: Replace Placeholder Images
         self.icon_1_player = pygame.transform.scale(self.icon_1_player, (58 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_2_players = pygame.image.load('assets/gui/two_players.png')
         self.icon_2_players = pygame.transform.scale(self.icon_2_players, (66 * sizeMultiplier, 7 * sizeMultiplier))
@@ -593,10 +594,10 @@ class Game:
             for column in range(10):
                 if column in key[row]:
                     species = [2, 1, 1, 0, 0][row]
-                    y_coord = 100 + (45 * row)
-                    x_coord = 97.5 + (45 * column)
+                    y_coord = 40 * sizeMultiplier + (18 * sizeMultiplier * row)
+                    x_coord = 39 * sizeMultiplier + (18 * sizeMultiplier * column)
 
-                    self.player.enemies.append(Enemy(species, x_coord, y_coord, self, ticking))
+                    self.player.enemies.append(Enemy(species, x_coord, int(y_coord), self, ticking))
 
     def check_events(self, missiles=False, mode="normal"):
         global end_game
@@ -647,72 +648,70 @@ class Game:
         if self.current_tick % 15 == 0:
             self.gui_flash = not self.gui_flash
 
-        if mode == "all" or mode == "stage_animation":
-            for life in range(self.player.lives_remaining):
+        if mode == "all" or mode == "stage_animation" or mode == "starting":
+            for life in range([self.player.lives_remaining, self.player.life][mode == "starting"]):
                 if life >= 8:
                     break
-                screen.blit(self.icon_lives, (10 + (life * (13 * sizeMultiplier + 10)), screen_height -
-                                              14 * sizeMultiplier - 10))
+                screen.blit(self.icon_lives,
+                            (4 * sizeMultiplier + (life * (13 * sizeMultiplier + 4 * sizeMultiplier)),
+                             screen_height - 14 * sizeMultiplier - 4 * sizeMultiplier))
 
         if mode == "all":
-            margin_right = 10
+            margin_right = 4 * sizeMultiplier
             for i in range(math.floor(self.player.stage / 50)):
                 screen.blit(self.icon_badge50, (screen_width - margin_right - self.badge_sizes[5][0],
-                                                screen_height - 10 - self.badge_sizes[5][1]))
-                margin_right += self.badge_sizes[5][0] + 3
+                                                screen_height - 4 * sizeMultiplier - self.badge_sizes[5][1]))
+                margin_right += self.badge_sizes[5][0] + 1.2 * sizeMultiplier
             for i in range(math.floor(self.player.stage % 50 / 30)):
                 screen.blit(self.icon_badge30, (screen_width - margin_right - self.badge_sizes[4][0],
-                                                screen_height - 10 - self.badge_sizes[4][1]))
-                margin_right += self.badge_sizes[4][0] + 3
+                                                screen_height - 4 * sizeMultiplier - self.badge_sizes[4][1]))
+                margin_right += self.badge_sizes[4][0] + 1.2 * sizeMultiplier
             for i in range(math.floor(self.player.stage % 50 % 30 / 20)):
                 screen.blit(self.icon_badge20, (screen_width - margin_right - self.badge_sizes[3][0],
-                                                screen_height - 10 - self.badge_sizes[3][1]))
-                margin_right += self.badge_sizes[3][0] + 3
+                                                screen_height - 4 * sizeMultiplier - self.badge_sizes[3][1]))
+                margin_right += self.badge_sizes[3][0] + 1.2 * sizeMultiplier
             for i in range(math.floor(self.player.stage % 50 % 30 % 20 / 10)):
                 screen.blit(self.icon_badge10, (screen_width - margin_right - self.badge_sizes[2][0],
-                                                screen_height - 10 - self.badge_sizes[2][1]))
-                margin_right += self.badge_sizes[2][0] + 3
+                                                screen_height - 4 * sizeMultiplier - self.badge_sizes[2][1]))
+                margin_right += self.badge_sizes[2][0] + 1.2 * sizeMultiplier
             for i in range(math.floor(self.player.stage % 50 % 30 % 20 % 10 / 5)):
                 screen.blit(self.icon_badge5, (screen_width - margin_right - self.badge_sizes[1][0],
-                                               screen_height - 10 - self.badge_sizes[1][1]))
-                margin_right += self.badge_sizes[1][0] + 3
+                                               screen_height - 4 * sizeMultiplier - self.badge_sizes[1][1]))
+                margin_right += self.badge_sizes[1][0] + 1.2 * sizeMultiplier
             for i in range(math.floor(self.player.stage % 50 % 30 % 20 % 10 % 5)):
                 screen.blit(self.icon_badge1, (screen_width - margin_right - self.badge_sizes[0][0],
-                                               screen_height - 10 - self.badge_sizes[0][1]))
-                margin_right += self.badge_sizes[0][0] + 3
-
-        if mode == "starting":
-            for life in range(self.player.life):
-                if life >= 8:
-                    break
-                screen.blit(self.icon_lives, (10 + (life * (13 * sizeMultiplier + 10)), screen_height -
-                                              14 * sizeMultiplier - 10))
+                                               screen_height - 4 * sizeMultiplier - self.badge_sizes[0][1]))
+                margin_right += self.badge_sizes[0][0] + 1.2 * sizeMultiplier
 
         if self.player.player_number == 1:
             if self.gui_flash or mode == "limited":
-                screen.blit(self.icon_1up, (30 + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2, 10))
+                screen.blit(self.icon_1up, (12 * sizeMultiplier + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2,
+                                            4 * sizeMultiplier))
             if self.players == 2:
                 screen.blit(self.icon_2up,
                             (screen_width - 23 * sizeMultiplier -
-                             (30 + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2), 10))
+                             (12 * sizeMultiplier + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2),
+                             4 * sizeMultiplier))
         elif self.player.player_number == 2:
             screen.blit(self.icon_1up,
-                        (30 + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2, 10))
+                        (12 * sizeMultiplier + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2, 4 * sizeMultiplier))
             if self.gui_flash or mode == "limited":
                 screen.blit(self.icon_2up,
                             (screen_width - 23 * sizeMultiplier -
-                             (30 + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2), 10))
+                             (12 * sizeMultiplier + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2),
+                             4 * sizeMultiplier))
         if not self.high_score_flash or self.gui_flash or mode == "limited":
-            screen.blit(self.icon_high_score, (screen_width / 2 - (39.5 * sizeMultiplier), 10))
+            screen.blit(self.icon_high_score, (screen_width / 2 - (39.5 * sizeMultiplier), 4 * sizeMultiplier))
 
         self.blit_score(
-            self.score_1up, 30 + sizeMultiplier * 8 * (6 - len(str(self.score_1up))), 10 + 8 * sizeMultiplier)
+            self.score_1up, 12 * sizeMultiplier + sizeMultiplier * 8 * (6 - len(str(self.score_1up))),
+            4 * sizeMultiplier + 8 * sizeMultiplier)
         if self.players == 2 or self.player.player_number == 2:
             self.blit_score(
-                self.score_2up, screen_width - 30 - sizeMultiplier * 8 * len(str(self.score_2up)),
-                10 + 8 * sizeMultiplier)
+                self.score_2up, screen_width - 12 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.score_2up)),
+                4 * sizeMultiplier + 8 * sizeMultiplier)
         self.blit_score(local_high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(local_high_score))),
-                        10 + 8 * sizeMultiplier)
+                        4 * sizeMultiplier + 8 * sizeMultiplier)
 
     def blit_score(self, score, x_coord, y_coord, colour="white", skip=False):
         score_str = str(score)
@@ -964,14 +963,14 @@ class Game:
 
 class Star:
     def __init__(self):
-        self.x_coord = random.randint(0, screen_width)
-        self.y_coord = random.randint(0, screen_height)
+        self.x_coord = random.randint(0, math.floor(screen_width))
+        self.y_coord = random.randint(0, math.floor(screen_height))
         self.colour = [random.randint(0, 100), random.randint(0, 100), random.randint(0, 100)]
         self.display_colour = random.choice([True, False])
         self.tick_delay = random.randint(0, 4)
         self.velocity = random.randint(2, 8)
 
-        self.image = pygame.Surface((3, 3))
+        self.image = pygame.Surface((1.2 * sizeMultiplier, 1.2 * sizeMultiplier))
 
     def tick(self, speed=float(1)):
         if self.y_coord < screen_height:
@@ -989,7 +988,7 @@ class Star:
 
     def regenerate(self):
         self.y_coord = 0
-        self.x_coord = random.randint(0, screen_width)
+        self.x_coord = random.randint(0, math.floor(screen_width))
 
 
 class Player:
@@ -1017,7 +1016,7 @@ class Player:
         self.game_end = False
 
         self.x_coord = screen_width / 2 - self.width / 2
-        self.y_coord = screen_height - 80
+        self.y_coord = screen_height - 32 * sizeMultiplier
         self.shotsFired = 0
         self.hits = 0
 
@@ -1087,11 +1086,11 @@ class Player:
 
     def move(self, direction):
         if direction == -1:
-            if self.x_coord > 0 + 10:
-                self.x_coord -= 8
+            if self.x_coord > 0 + 4 * sizeMultiplier:
+                self.x_coord -= round(3.2 * sizeMultiplier)
         if direction == 1:
-            if self.x_coord < screen_width - self.width - 10:
-                self.x_coord += 8
+            if self.x_coord < screen_width - self.width - 4 * sizeMultiplier:
+                self.x_coord += round(3.2 * sizeMultiplier)
 
     def shoot(self):
         if len(self.missiles) < 2 * self.fighters:
@@ -1153,9 +1152,9 @@ class Missile:
             self.check_collision()
             if self.y_coord > 3:
                 if self.team == "player":
-                    self.y_coord -= 30
+                    self.y_coord -= round(12 * sizeMultiplier)
                 elif self.team == "enemy":
-                    self.y_coord += 20
+                    self.y_coord += round(8 * sizeMultiplier)
 
             screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
@@ -1254,12 +1253,12 @@ class Explosion:
         self.animation = 0
         self.target = target
         if self.target == "player":
-            self.size = 64
+            self.size = 26 * sizeMultiplier
             self.image = self.game.sprites['player_explosion'][0]
             self.animation_speed = 6
             self.size_shift = 1.25
         elif self.target == "enemy":
-            self.size = 32
+            self.size = 12 * sizeMultiplier
             self.image = self.game.sprites['enemy_explosion'][0]
             self.animation_speed = 3
             self.size_shift = 1
