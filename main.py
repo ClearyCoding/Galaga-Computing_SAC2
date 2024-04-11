@@ -612,8 +612,10 @@ class Game:
         # Check if quit button has been pressed
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                save_high_score("???", self.score_1up)
-                save_high_score("???", self.score_2up)
+                if self.score_1up > 0:
+                    save_high_score("???", self.score_1up)
+                if self.score_2up > 0:
+                    save_high_score("???", self.score_2up)
                 end_game = True
 
             if event.type in {pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN}:
@@ -621,8 +623,10 @@ class Game:
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    save_high_score("???", self.score_1up)
-                    save_high_score("???", self.score_2up)
+                    if self.score_1up > 0:
+                        save_high_score("???", self.score_1up)
+                    if self.score_2up > 0:
+                        save_high_score("???", self.score_2up)
                     end_game = True
 
                 # Shoot Button
@@ -708,7 +712,7 @@ class Game:
                             (screen_width - 23 * sizeMultiplier -
                              (12 * sizeMultiplier + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2),
                              4 * sizeMultiplier))
-        if not self.high_score_flash or self.gui_flash or mode == "limited":
+        if not self.high_score_flash or self.gui_flash or mode == "limited" or local_high_score <= 0:
             screen.blit(self.icon_high_score, (screen_width / 2 - (39.5 * sizeMultiplier), 4 * sizeMultiplier))
 
         self.blit_score(
@@ -846,6 +850,8 @@ class Game:
             for i, value in enumerate(list(high_scores.values())):
                 if self.player.score > value and i < 5:
                     scoreboard = True
+        if self.player.score <= 0:
+            scoreboard = False
 
         selected_letter = 0
         player_name = [0, 0, 0]
