@@ -595,7 +595,7 @@ class Game:
                 if column in key[row]:
                     species = [2, 1, 1, 0, 0][row]
                     y_coord = 40 * sizeMultiplier + (18 * sizeMultiplier * row)
-                    x_coord = 39 * sizeMultiplier + (18 * sizeMultiplier * column)
+                    x_coord = (screen_width - 162 * sizeMultiplier) / 2 + (18 * sizeMultiplier * column)
 
                     self.player.enemies.append(Enemy(species, x_coord, int(y_coord), self, ticking))
 
