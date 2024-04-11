@@ -97,6 +97,22 @@ class Game:
                 '2d': pygame.image.load('assets/enemy2d.png'),
             },
         }
+        self.fontKey = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
+                        'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+                        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                        'question_mark', 'decimal_point']
+
+        self.font = {
+            'white': [pygame.transform.scale(
+                pygame.image.load(f'assets/font/{i}.png'),
+                (7 * sizeMultiplier, 7 * sizeMultiplier)) for i in self.fontKey],
+            'yellow': [pygame.transform.scale(
+                pygame.image.load(f'assets/font/yellow/{i}.png'),
+                (7 * sizeMultiplier, 7 * sizeMultiplier)) for i in self.fontKey],
+            'blue': [pygame.transform.scale(
+                pygame.image.load(f'assets/font/blue/{i}.png'),
+                (7 * sizeMultiplier, 7 * sizeMultiplier)) for i in self.fontKey],
+        }
 
         self.players = 1
         self.current_player = 1
@@ -151,38 +167,6 @@ class Game:
         self.icon_high_score = pygame.transform.scale(self.icon_high_score, (79 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_stage = pygame.image.load('assets/gui/stage.png')
         self.icon_stage = pygame.transform.scale(self.icon_stage, (38 * sizeMultiplier, 7 * sizeMultiplier))
-        self.number_textures = [pygame.image.load(f'assets/font/{i}.png') for i in range(10)]
-        for i in range(len(self.number_textures)):
-            self.number_textures[i] = pygame.transform.scale(
-                self.number_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.blue_number_textures = [pygame.image.load(f'assets/font/blue/{i}.png') for i in range(10)]
-        for i in range(len(self.blue_number_textures)):
-            self.blue_number_textures[i] = pygame.transform.scale(
-                self.blue_number_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.yellow_number_textures = [pygame.image.load(f'assets/font/yellow/{i}.png') for i in range(10)]
-        for i in range(len(self.yellow_number_textures)):
-            self.yellow_number_textures[i] = pygame.transform.scale(
-                self.yellow_number_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.letter_textures = [pygame.image.load(f'assets/font/{i}.png') for i in
-                                ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-                                 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']]
-        for i in range(len(self.letter_textures)):
-            self.letter_textures[i] = pygame.transform.scale(
-                self.letter_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
-
-        self.blue_letter_textures = [pygame.image.load(f'assets/font/blue/{i}.png') for i in
-                                     ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-                                      'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']]
-        for i in range(len(self.blue_letter_textures)):
-            self.blue_letter_textures[i] = pygame.transform.scale(
-                self.blue_letter_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
-
-        self.yellow_letter_textures = [pygame.image.load(f'assets/font/yellow/{i}.png') for i in
-                                       ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-                                        'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']]
-        for i in range(len(self.yellow_letter_textures)):
-            self.yellow_letter_textures[i] = pygame.transform.scale(
-                self.yellow_letter_textures[i], (7 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_game_over = pygame.image.load('assets/gui/game_over.png')
         self.icon_game_over = pygame.transform.scale(self.icon_game_over, (67 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_results = pygame.image.load('assets/gui/results.png')
@@ -195,24 +179,6 @@ class Game:
         self.icon_accuracy = pygame.transform.scale(self.icon_accuracy, (128 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_percentage = pygame.image.load('assets/gui/percentage.png')
         self.icon_percentage = pygame.transform.scale(self.icon_percentage, (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_question_mark_blue = pygame.image.load('assets/font/blue/question_mark.png')
-        self.icon_question_mark_blue = pygame.transform.scale(self.icon_question_mark_blue,
-                                                              (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_question_mark_yellow = pygame.image.load('assets/font/yellow/question_mark.png')
-        self.icon_question_mark_yellow = pygame.transform.scale(self.icon_question_mark_yellow,
-                                                                (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_question_mark_white = pygame.image.load('assets/font/question_mark.png')
-        self.icon_question_mark_white = pygame.transform.scale(self.icon_question_mark_white,
-                                                               (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_decimal_yellow = pygame.image.load('assets/font/yellow/decimal_point.png')
-        self.icon_decimal_yellow = pygame.transform.scale(self.icon_decimal_yellow,
-                                                          (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_decimal_blue = pygame.image.load('assets/font/blue/decimal_point.png')
-        self.icon_decimal_blue = pygame.transform.scale(self.icon_decimal_blue,
-                                                        (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_decimal_white = pygame.image.load('assets/font/decimal_point.png')
-        self.icon_decimal_white = pygame.transform.scale(self.icon_decimal_white,
-                                                         (7 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_underline = pygame.image.load('assets/gui/underline.png')
         self.icon_underline = pygame.transform.scale(self.icon_underline,
                                                      (7 * sizeMultiplier, 1 * sizeMultiplier))
@@ -373,6 +339,7 @@ class Game:
 
             pygame.display.flip()
 
+        self.select_players = False
         if self.players == 2 and not self.player2:
             self.player2 = Player(self, 2)
             self.player = [self.player1, self.player2][self.current_player - 1]
@@ -755,36 +722,36 @@ class Game:
         for i, digit in enumerate(score_str):
             if digit.isdigit():
                 if colour == "white":
-                    screen.blit(self.number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['white'][int(digit) + 26], (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "blue":
-                    screen.blit(self.blue_number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['blue'][int(digit) + 26], (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "yellow":
-                    screen.blit(self.yellow_number_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['yellow'][int(digit) + 26], (x_coord + i * 8 * sizeMultiplier, y_coord))
             elif digit == "?":
                 if colour == "blue":
-                    screen.blit(self.icon_question_mark_blue, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['blue'][36], (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "white":
-                    screen.blit(self.icon_question_mark_white, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['white'][36], (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "yellow":
-                    screen.blit(self.icon_question_mark_yellow, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['yellow'][36], (x_coord + i * 8 * sizeMultiplier, y_coord))
             elif digit == ".":
                 if colour == "blue":
-                    screen.blit(self.icon_decimal_blue, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['blue'][37], (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "yellow":
-                    screen.blit(self.icon_decimal_yellow, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['yellow'][37], (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "white":
-                    screen.blit(self.icon_decimal_white, (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['white'][37], (x_coord + i * 8 * sizeMultiplier, y_coord))
             else:
                 if digit.islower():
                     digit = ord(digit) - ord('a')
                 else:
                     digit = ord(digit) - ord('A')
                 if colour == "white":
-                    screen.blit(self.letter_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['white'][int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "yellow":
-                    screen.blit(self.yellow_letter_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['yellow'][int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
                 elif colour == "blue":
-                    screen.blit(self.blue_letter_textures[int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                    screen.blit(self.font['blue'][int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
 
     def game_over(self):
         self.player.ticking = False
@@ -847,7 +814,7 @@ class Game:
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                             + 3 * 8 * sizeMultiplier + 128 * sizeMultiplier,
                             (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "white", True)
-            screen.blit(self.icon_decimal_white,
+            screen.blit(self.font['white'][37],
                         (((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
                          + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
