@@ -9,7 +9,6 @@ import math
 # The number of lives the player starts with
 initial_lives = 3
 
-sizeMultiplier = 2.5
 end_game = False
 
 high_scores = {}
@@ -41,8 +40,15 @@ life_bonus = [20000, 60000, 60000]
 
 # Initialize Pygame
 pygame.init()
-screen_width = 240 * sizeMultiplier
-screen_height = 320 * sizeMultiplier
+
+# sizeMultiplier = 2.5
+# screen_width = 240 * sizeMultiplier
+# screen_height = 320 * sizeMultiplier
+infoObject = pygame.display.Info()
+screen_height = infoObject.current_h * 0.85  # TODO: Screen Resizing
+screen_width = screen_height * 3/4
+sizeMultiplier = screen_height / 320
+
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
 pygame.display.set_caption("Galaga - Computing 1/2 SAC #2")
 pygame.mouse.set_visible(False)
@@ -125,6 +131,9 @@ class Game:
             self.player2 = None
             self.player = self.player1
         self.stars = []
+        print(round(266 * (screen_width / screen_height)))
+        for star in range(0, round(266 * (screen_width / screen_height))):
+            self.stars.append(Star())
         self.explosions = []
 
         self.clock = pygame.time.Clock()
@@ -250,9 +259,6 @@ class Game:
         self.icon_2_players = pygame.transform.scale(self.icon_2_players, (66 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_pointer = pygame.image.load('assets/gui/pointer.png')
         self.icon_pointer = pygame.transform.scale(self.icon_pointer, (7 * sizeMultiplier, 7 * sizeMultiplier))
-
-        for star in range(0, 200):
-            self.stars.append(Star())
 
     def start(self):
         global local_high_score
@@ -965,7 +971,9 @@ class Star:
     def __init__(self):
         self.x_coord = random.randint(0, math.floor(screen_width))
         self.y_coord = random.randint(0, math.floor(screen_height))
-        self.colour = [random.randint(0, 100), random.randint(0, 100), random.randint(0, 100)]
+        self.max_brightness = 110
+        self.colour = [random.randint(0, self.max_brightness),
+                       random.randint(0, self.max_brightness), random.randint(0, self.max_brightness)]
         self.display_colour = random.choice([True, False])
         self.tick_delay = random.randint(0, 4)
         self.velocity = random.randint(2, 8)
