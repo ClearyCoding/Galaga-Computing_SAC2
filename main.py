@@ -45,8 +45,9 @@ pygame.init()
 # screen_width = 240 * sizeMultiplier
 # screen_height = 320 * sizeMultiplier
 infoObject = pygame.display.Info()
+aspect_ratio = 7/9
 screen_height = infoObject.current_h * 0.85  # TODO: Screen Resizing
-screen_width = screen_height * 3/4
+screen_width = screen_height * aspect_ratio
 sizeMultiplier = screen_height / 320
 
 screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
@@ -1106,10 +1107,10 @@ class Player:
 
     def move(self, direction):
         if direction == -1:
-            if self.x_coord > 0 + 4 * sizeMultiplier:
+            if self.x_coord > screen_width / 2 - screen_height * 7/18 + 6 * sizeMultiplier:
                 self.x_coord -= round(3.2 * sizeMultiplier)
         if direction == 1:
-            if self.x_coord < screen_width - self.width - 4 * sizeMultiplier:
+            if self.x_coord < screen_width / 2 + screen_height * 7/18 - self.width - 6 * sizeMultiplier:
                 self.x_coord += round(3.2 * sizeMultiplier)
 
     def shoot(self):
