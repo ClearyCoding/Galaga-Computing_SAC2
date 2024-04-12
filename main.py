@@ -24,11 +24,15 @@ def save_high_score(player, score):
             save_highScoreFile.write(f'{save_player}:{save_score}\n')
 
 
-with open('high_scores', 'r') as load_highScoreFile:
-    for line in load_highScoreFile:
-        load_player, load_score = line.strip().split(':')
-        high_scores[load_player] = int(load_score)
-    high_scores = {k: v for k, v in sorted(high_scores.items(), key=lambda item: item[1], reverse=True)}
+try:
+    with open('high_scores', 'r') as load_highScoreFile:
+        for line in load_highScoreFile:
+            load_player, load_score = line.strip().split(':')
+            high_scores[load_player] = int(load_score)
+        high_scores = {k: v for k, v in sorted(high_scores.items(), key=lambda item: item[1], reverse=True)}
+except FileNotFoundError:
+    with open('high_scores', 'w') as file:
+        file.write("")
 
 if list(high_scores.values()):
     local_high_score = list(high_scores.values())[0]
