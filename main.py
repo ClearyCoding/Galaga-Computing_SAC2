@@ -151,10 +151,12 @@ class Game:
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
-        self.badge_sizes = [[7, 12], [7, 14], [13, 14], [15, 16], [15, 16], [15, 16]]
-        for badge in range(len(self.badge_sizes)):
-            for size in range(2):
-                self.badge_sizes[badge][size] = round(self.badge_sizes[badge][size] * sizeMultiplier)
+        self.badge_sizes = [[7 * sizeMultiplier, 12 * sizeMultiplier],
+                            [7 * sizeMultiplier, 14 * sizeMultiplier],
+                            [13 * sizeMultiplier, 14 * sizeMultiplier],
+                            [15 * sizeMultiplier, 16 * sizeMultiplier],
+                            [15 * sizeMultiplier, 16 * sizeMultiplier],
+                            [15 * sizeMultiplier, 16 * sizeMultiplier]]
         self.icon_badge1 = pygame.image.load('assets/gui/badge1.png')
         self.icon_badge1 = pygame.transform.scale(self.icon_badge1, (self.badge_sizes[0][0], self.badge_sizes[0][1]))
         self.icon_badge5 = pygame.image.load('assets/gui/badge5.png')
