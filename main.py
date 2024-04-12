@@ -96,7 +96,7 @@ class Game:
             'enemy': {
                 '0a': pygame.image.load('assets/enemy0a.png'),
                 '0b': pygame.image.load('assets/enemy0b.png'),
-                '1a': pygame.image.load('assets/enemy1a.png'),  # TODO: Fix Bright Spots On Butterfly Texture
+                '1a': pygame.image.load('assets/enemy1a.png'),
                 '1b': pygame.image.load('assets/enemy1b.png'),
                 '2a': pygame.image.load('assets/enemy2a.png'),
                 '2b': pygame.image.load('assets/enemy2b.png'),
@@ -253,13 +253,13 @@ class Game:
         self.icon_heroes = pygame.transform.scale(self.icon_heroes, (150 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_select_players = pygame.image.load('assets/gui/select_players.png')
         self.icon_select_players = pygame.transform.scale(self.icon_select_players,
-                                                          (164 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_1_player = pygame.image.load('assets/gui/one_player.png')  # TODO: Replace Placeholder Images
+                                                          (108 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_1_player = pygame.image.load('assets/gui/one_player.png')
         self.icon_1_player = pygame.transform.scale(self.icon_1_player, (58 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_2_players = pygame.image.load('assets/gui/two_players.png')
         self.icon_2_players = pygame.transform.scale(self.icon_2_players, (66 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_pointer = pygame.image.load('assets/gui/pointer.png')
-        self.icon_pointer = pygame.transform.scale(self.icon_pointer, (7 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_pointer = pygame.transform.scale(self.icon_pointer, (8 * sizeMultiplier, 7 * sizeMultiplier))
 
     def start(self):
         global local_high_score
@@ -292,7 +292,7 @@ class Game:
                     self.select_players = False
 
                 screen.blit(self.icon_select_players,
-                            ((screen_width - 164 * sizeMultiplier) / 2,
+                            ((screen_width - 108 * sizeMultiplier) / 2,
                              (screen_height - 16 * sizeMultiplier) / 2 - 32 * sizeMultiplier))
                 screen.blit(self.icon_1_player,
                             ((screen_width - 82 * sizeMultiplier) / 2 + 16 * sizeMultiplier,
