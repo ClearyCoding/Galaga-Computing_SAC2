@@ -50,7 +50,7 @@ screen_height = infoObject.current_h * 0.85  # TODO: Screen Resizing
 screen_width = screen_height * aspect_ratio
 sizeMultiplier = screen_height / 320
 
-screen = pygame.display.set_mode((screen_width, screen_height), pygame.RESIZABLE)
+screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Galaga - Computing 1/2 SAC #2")
 pygame.mouse.set_visible(False)
 window_icon = pygame.image.load('assets/icon.png')
