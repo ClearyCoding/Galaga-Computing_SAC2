@@ -6,9 +6,13 @@ import pygame
 import random
 import math
 
-# The number of lives the player starts with
+fullscreen = False
+
+# Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
+life_bonus = [20000, 60000, 60000]
 initial_lives = 3
 
+# Terminates The Game When True
 end_game = False
 
 high_scores = {}
@@ -39,9 +43,6 @@ if list(high_scores.values()):
 else:
     local_high_score = 0
 
-# Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
-life_bonus = [20000, 60000, 60000]
-
 # Initialize Pygame
 pygame.init()
 
@@ -50,11 +51,18 @@ pygame.init()
 # screen_height = 320 * sizeMultiplier
 infoObject = pygame.display.Info()
 aspect_ratio = 7/9
-screen_height = infoObject.current_h * 0.85  # TODO: Screen Resizing
-screen_width = screen_height * aspect_ratio
+
+if fullscreen:
+    screen_width = infoObject.current_w
+    screen_height = infoObject.current_h
+    screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
+else:
+    screen_height = infoObject.current_h * 0.85  # TODO: Screen Resizing
+    screen_width = screen_height * aspect_ratio
+    screen = pygame.display.set_mode((screen_width, screen_height))
+
 sizeMultiplier = screen_height / 320
 
-screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Galaga - Computing 1/2 SAC #2")
 pygame.mouse.set_visible(False)
 window_icon = pygame.image.load('assets/icon.png')
