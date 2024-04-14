@@ -15,43 +15,10 @@ initial_lives = 3
 # Terminates The Game When True
 end_game = False
 
-high_scores = {}
-
-
-def save_high_score(player, score):
-    global high_scores
-    if not high_scores.get(player) or high_scores[player] < score:
-        high_scores[player] = score
-    high_scores = {k: v for k, v in sorted(high_scores.items(), key=lambda item: item[1], reverse=True)}
-    with open('high_scores', 'w') as save_highScoreFile:
-        for save_player, save_score in high_scores.items():
-            save_highScoreFile.write(f'{save_player}:{save_score}\n')
-
-
-try:
-    with open('high_scores', 'r') as load_highScoreFile:
-        for line in load_highScoreFile:
-            load_player, load_score = line.strip().split(':')
-            high_scores[load_player] = int(load_score)
-        high_scores = {k: v for k, v in sorted(high_scores.items(), key=lambda item: item[1], reverse=True)}
-except FileNotFoundError:
-    with open('high_scores', 'w') as file:
-        file.write("")
-
-if list(high_scores.values()):
-    local_high_score = list(high_scores.values())[0]
-else:
-    local_high_score = 0
-
 # Initialize Pygame
 pygame.init()
-
-# sizeMultiplier = 2.5
-# screen_width = 240 * sizeMultiplier
-# screen_height = 320 * sizeMultiplier
 infoObject = pygame.display.Info()
 aspect_ratio = 7/9
-
 if fullscreen:
     screen_width = infoObject.current_w
     screen_height = infoObject.current_h
@@ -161,6 +128,23 @@ class Game:
         self.running = False
         self.select_players = False
         self.last_interaction = 0
+
+        self.high_scores = {}
+        try:
+            with open('high_scores', 'r') as load_highScoreFile:
+                for line in load_highScoreFile:
+                    load_player, load_score = line.strip().split(':')
+                    self.high_scores[load_player] = int(load_score)
+                self.high_scores = {k: v for k, v in sorted(self.high_scores.items(),
+                                                            key=lambda item: item[1], reverse=True)}
+        except FileNotFoundError:
+            with open('high_scores', 'w') as file:
+                file.write("")
+
+        if list(self.high_scores.values()):
+            self.local_high_score = list(self.high_scores.values())[0]
+        else:
+            self.local_high_score = 0
 
         self.icon_lives = pygame.image.load('assets/gui/life.png')
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
@@ -274,8 +258,15 @@ class Game:
         self.icon_pointer = pygame.image.load('assets/gui/pointer.png')
         self.icon_pointer = pygame.transform.scale(self.icon_pointer, (8 * sizeMultiplier, 7 * sizeMultiplier))
 
+    def save_high_score(self, player, score):
+        if not self.high_scores.get(player) or self.high_scores[player] < score:
+            self.high_scores[player] = score
+        self.high_scores = {k: v for k, v in sorted(self.high_scores.items(), key=lambda item: item[1], reverse=True)}
+        with open('high_scores', 'w') as save_highScoreFile:
+            for save_player, save_score in self.high_scores.items():
+                save_highScoreFile.write(f'{save_player}:{save_score}\n')
+
     def start(self):
-        global local_high_score
         menu_position = 0
         while self.menu_open:
             self.clock.tick(self.tps)
@@ -341,7 +332,7 @@ class Game:
                     screen.blit(self.icon_score, (screen_width / 2 - 55 * sizeMultiplier,
                                                   screen_height - 140 * sizeMultiplier))
 
-                    for i, (name, score) in enumerate(high_scores.items()):
+                    for i, (name, score) in enumerate(self.high_scores.items()):
                         if i > 4:
                             break
                         screen.blit(
@@ -387,8 +378,8 @@ class Game:
                 else:
                     star.tick(0)
 
-            if self.player.score >= local_high_score:
-                local_high_score = self.player.score
+            if self.player.score >= self.local_high_score:
+                self.local_high_score = self.player.score
                 self.high_score_flash = True
             else:
                 self.high_score_flash = False
@@ -498,7 +489,6 @@ class Game:
         self.run()
 
     def run(self):
-        global local_high_score
         self.running = True
         while self.running:
             self.clock.tick(self.tps)
@@ -552,8 +542,8 @@ class Game:
             elif self.player.player_number == 2:
                 self.score_2up = self.player.score
 
-            if self.player.score >= local_high_score:
-                local_high_score = self.player.score
+            if self.player.score >= self.local_high_score:
+                self.local_high_score = self.player.score
                 self.high_score_flash = True
             else:
                 self.high_score_flash = False
@@ -628,9 +618,9 @@ class Game:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 if self.score_1up > 0:
-                    save_high_score("???", self.score_1up)
+                    self.save_high_score("???", self.score_1up)
                 if self.score_2up > 0:
-                    save_high_score("???", self.score_2up)
+                    self.save_high_score("???", self.score_2up)
                 end_game = True
 
             if event.type in {pygame.KEYDOWN, pygame.MOUSEBUTTONDOWN}:
@@ -639,9 +629,9 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     if self.score_1up > 0:
-                        save_high_score("???", self.score_1up)
+                        self.save_high_score("???", self.score_1up)
                     if self.score_2up > 0:
-                        save_high_score("???", self.score_2up)
+                        self.save_high_score("???", self.score_2up)
                     end_game = True
 
                 # Shoot Button
@@ -670,8 +660,6 @@ class Game:
                     self.save_action = "right"
 
     def tick_gui(self, mode="all"):
-        global local_high_score
-
         if self.current_tick % 15 == 0:
             self.gui_flash = not self.gui_flash
 
@@ -727,7 +715,7 @@ class Game:
                             (screen_width - 23 * sizeMultiplier -
                              (12 * sizeMultiplier + (48 * sizeMultiplier - 23 * sizeMultiplier) / 2),
                              4 * sizeMultiplier))
-        if not self.high_score_flash or self.gui_flash or mode == "limited" or local_high_score <= 0:
+        if not self.high_score_flash or self.gui_flash or mode == "limited" or self.local_high_score <= 0:
             screen.blit(self.icon_high_score, (screen_width / 2 - (39.5 * sizeMultiplier), 4 * sizeMultiplier))
 
         self.blit_score(
@@ -737,7 +725,8 @@ class Game:
             self.blit_score(
                 self.score_2up, screen_width - 12 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.score_2up)),
                 4 * sizeMultiplier + 8 * sizeMultiplier)
-        self.blit_score(local_high_score, screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(local_high_score))),
+        self.blit_score(self.local_high_score,
+                        screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(self.local_high_score))),
                         4 * sizeMultiplier + 8 * sizeMultiplier)
 
     def blit_score(self, score, x_coord, y_coord, colour="white", skip=False):
@@ -859,10 +848,10 @@ class Game:
                 game_over_loop = False
 
         scoreboard = False
-        if len(high_scores) < 5:
+        if len(self.high_scores) < 5:
             scoreboard = True
         else:
-            for i, value in enumerate(list(high_scores.values())):
+            for i, value in enumerate(list(self.high_scores.values())):
                 if self.player.score > value and i < 5:
                     scoreboard = True
         if self.player.score <= 0:
@@ -941,7 +930,7 @@ class Game:
             screen.blit(self.icon_score, (screen_width / 2 - 55 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
             screen.blit(self.icon_name, (screen_width / 2 + 55 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
 
-            inclusive_high_scores = high_scores.copy()
+            inclusive_high_scores = self.high_scores.copy()
             inclusive_high_scores[self.player.name] = self.player.score
             inclusive_high_scores = {k: v for k, v in sorted(inclusive_high_scores.items(),
                                                              key=lambda item: item[1], reverse=True)}
@@ -979,7 +968,7 @@ class Game:
                 self.sounds['initials'].play()
 
             if self.save_score:
-                save_high_score(self.player.name, self.player.score)
+                self.save_high_score(self.player.name, self.player.score)
                 scoreboard = False
         self.sounds['initials'].stop()
         if self.players == 2:
