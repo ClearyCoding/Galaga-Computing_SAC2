@@ -257,6 +257,21 @@ class Game:
         self.icon_2_players = pygame.transform.scale(self.icon_2_players, (66 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_pointer = pygame.image.load('assets/gui/pointer.png')
         self.icon_pointer = pygame.transform.scale(self.icon_pointer, (8 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_challenging_stage = pygame.image.load('assets/gui/challenging_stage.png')
+        self.icon_challenging_stage = pygame.transform.scale(
+            self.icon_challenging_stage, (129 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_challenging_perfect = pygame.image.load('assets/gui/challenge_perfect.png')
+        self.icon_challenging_perfect = pygame.transform.scale(
+            self.icon_challenging_perfect, (64 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_challenging_bonus = pygame.image.load('assets/gui/challenge_bonus.png')
+        self.icon_challenging_bonus = pygame.transform.scale(
+            self.icon_challenging_bonus, (39 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_challenging_special_bonus = pygame.image.load('assets/gui/challenge_special_bonus.png')
+        self.icon_challenging_special_bonus = pygame.transform.scale(
+            self.icon_challenging_special_bonus, (100 * sizeMultiplier, 7 * sizeMultiplier))
+        self.icon_challenging_hits = pygame.image.load('assets/gui/challenge_hits.png')
+        self.icon_challenging_hits = pygame.transform.scale(
+            self.icon_challenging_hits, (111 * sizeMultiplier, 7 * sizeMultiplier))
 
     def save_high_score(self, player, score):
         if not self.high_scores.get(player) or self.high_scores[player] < score:
@@ -515,22 +530,71 @@ class Game:
                     star.tick()
 
             # New Stage Animations
+            # if self.time_out == 400:  TODO: Challenging Music
+            if 100 < self.time_out <= 300:
+                screen.blit(self.icon_challenging_hits,
+                            (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
+                             (screen_height - 7 * sizeMultiplier) / 2))
+            if 100 < self.time_out <= 266:
+                self.blit_score(self.player.challenge_hits,
+                                ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
+                                + (5 - len(str(self.player.challenge_hits))) * 8 * sizeMultiplier
+                                + 128 * sizeMultiplier,
+                                ((screen_height - 7 * sizeMultiplier) / 2), "blue")
+                if self.player.challenge_hits >= 40:
+                    screen.blit(self.icon_challenging_perfect,
+                                ((screen_width - 64 * sizeMultiplier) / 2,
+                                 (screen_height - 7 * sizeMultiplier) / 2 - 16 * sizeMultiplier))
+            if 100 < self.time_out <= 233:
+                if self.player.challenge_hits >= 40:
+                    screen.blit(self.icon_challenging_special_bonus,
+                                (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
+                                 (screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier))
+                else:
+                    screen.blit(self.icon_challenging_bonus,
+                                ((screen_width - 39 * sizeMultiplier) / 2,
+                                 (screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier))
+            if 100 < self.time_out <= 200:
+                if self.player.challenge_hits >= 40:
+                    self.blit_score(10000,
+                                    ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
+                                    + 128 * sizeMultiplier,
+                                    ((screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier), "yellow")
+                else:
+                    self.blit_score(self.player.challenge_hits * 100,
+                                    ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
+                                    + (5 - len(str(self.player.challenge_hits * 100))) * 8 * sizeMultiplier
+                                    + 128 * sizeMultiplier,
+                                    ((screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier), "blue")
             if 10 < self.time_out <= 70:
-                screen.blit(self.icon_stage,
-                            (screen_width / 2 - (38 * sizeMultiplier + 4 * 8 * sizeMultiplier) / 2,
-                             screen_height / 2 - 3.5 * sizeMultiplier))
-                self.blit_score(self.player.stage,
-                                screen_width / 2 - (38 * sizeMultiplier - 4 * 8 * sizeMultiplier) / 2
-                                + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.player.stage)),
-                                screen_height / 2 - 3.5 * sizeMultiplier, "blue")
+                if self.player.challenging_stage:
+                    screen.blit(self.icon_challenging_stage,
+                                ((screen_width - 129 * sizeMultiplier) / 2,
+                                 (screen_height - 7 * sizeMultiplier) / 2))
+                else:
+                    screen.blit(self.icon_stage,
+                                (screen_width / 2 - (38 * sizeMultiplier + 4 * 8 * sizeMultiplier) / 2,
+                                 screen_height / 2 - 3.5 * sizeMultiplier))
+                    self.blit_score(self.player.stage,
+                                    screen_width / 2 - (38 * sizeMultiplier - 4 * 8 * sizeMultiplier) / 2
+                                    + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.player.stage)),
+                                    screen_height / 2 - 3.5 * sizeMultiplier, "blue")
             if self.time_out == 55:
-                self.sounds['stage_up'].play()
+                self.sounds['stage_up'].play()  # TODO: Challenging Level Up Sound
                 self.player.stage = (self.player.stage + 1) % 256
             if self.time_out == 1:
                 self.spawn_enemies()
             if self.time_out == 0:
                 if len(self.player.enemies) == 0:  # Checks if stage progression is needed
-                    self.time_out = 100
+                    if self.player.challenging_stage:
+                        self.time_out = 400
+                    else:
+                        self.time_out = 100
+                    if (self.player.stage - 2) % 4 == 0:
+                        self.player.challenging_stage = True
+                        self.player.challenge_hits = 0
+                    else:
+                        self.player.challenging_stage = False
             if self.time_out > 0:
                 self.time_out -= 1
 
@@ -1020,7 +1084,7 @@ class Player:
         self.lives_remaining = self.life - 1
         self.stage = 1
         self.player_number = player_number
-        self.score = 999900
+        self.score = 0
         self.fighters = 1
         self.enemies = []
         self.enemy_missiles = []
@@ -1037,6 +1101,8 @@ class Player:
         self.respawning = False
         self.started = False
         self.game_end = False
+        self.challenging_stage = False
+        self.challenge_hits = 0
 
         self.x_coord = screen_width / 2 - self.width / 2
         self.y_coord = screen_height - 32 * sizeMultiplier
@@ -1260,6 +1326,8 @@ class Enemy:
 
     def die(self):
         self.game.player.score += [[50, 100], [80, 160], [150, 400]][self.species][self.diving]
+        if self.game.player.challenging_stage:
+            self.game.player.challenge_hits += 1
         self.game.sounds[self.death_sound].play()
         self.game.explosions.append(Explosion(
             self.x_coord + self.width / 2, self.y_coord + self.height / 2, "enemy", self.game))
