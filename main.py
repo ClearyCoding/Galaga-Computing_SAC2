@@ -535,8 +535,6 @@ class Game:
                 self.time_out -= 1
 
             # Update Scores
-            if self.player.score > 999999:
-                self.player.score = 999999
             if self.player.player_number == 1:
                 self.score_1up = self.player.score
             elif self.player.player_number == 2:
@@ -734,6 +732,9 @@ class Game:
         if len(score_str) == 1 and not skip and isinstance(score, int):
             score_str = "0" + score_str
             x_coord -= 8 * sizeMultiplier
+        elif len(score_str) > 6 and isinstance(score, int):
+            score_str = "999999"
+            x_coord += (len(score_str) - 5) * sizeMultiplier * 8
         for i, digit in enumerate(score_str):
             if digit.isdigit():
                 if colour == "white":
@@ -1019,7 +1020,7 @@ class Player:
         self.lives_remaining = self.life - 1
         self.stage = 1
         self.player_number = player_number
-        self.score = 0
+        self.score = 999900
         self.fighters = 1
         self.enemies = []
         self.enemy_missiles = []
