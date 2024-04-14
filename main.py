@@ -6,7 +6,7 @@ import pygame
 import random
 import math
 
-fullscreen = False
+fullscreen = True
 
 # Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
 life_bonus = [20000, 60000, 60000]
@@ -554,6 +554,11 @@ class Game:
                     screen.blit(self.icon_challenging_bonus,
                                 ((screen_width - 39 * sizeMultiplier) / 2,
                                  (screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier))
+            if self.time_out == 200:
+                if self.player.challenge_hits >= 40:
+                    self.player.score += 10000
+                else:
+                    self.player.score += self.player.challenge_hits * 100
             if 100 < self.time_out <= 200:
                 if self.player.challenge_hits >= 40:
                     self.blit_score(10000,
