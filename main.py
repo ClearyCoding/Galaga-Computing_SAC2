@@ -2,9 +2,9 @@
 #  Computing SAC2: Galaga Semi-Faithful Recreation by Alexander Cleary
 
 import pygame
-import random
-import math
-import os
+from random import randint, choice
+from math import floor
+from os import path
 
 fullscreen = False
 
@@ -16,11 +16,11 @@ initial_lives = 3
 end_game = False
 
 # Full Path To Assets Function
-mypath = os.path.dirname(os.path.realpath(__file__))
+mypath = path.dirname(path.realpath(__file__))
 
 
 def fetch(filename):
-    return os.path.join(mypath, filename)
+    return path.join(mypath, filename)
 
 
 # Initialize Pygame
@@ -51,6 +51,8 @@ class Game:
             'stage_up': pygame.mixer.Sound(fetch('assets/sounds/stage_up.wav')),
             'game_over': pygame.mixer.Sound(fetch('assets/sounds/game_over.wav')),
             'initials': pygame.mixer.Sound(fetch('assets/sounds/initials.wav')),
+            'challenging': pygame.mixer.Sound(fetch('assets/sounds/challenging.wav')),
+            'bonus': pygame.mixer.Sound(fetch('assets/sounds/challenging_music.wav')),
 
             'player_firing': pygame.mixer.Sound(fetch('assets/sounds/firing.wav')),
             'player_death': pygame.mixer.Sound(fetch('assets/sounds/death_player.wav')),
@@ -537,11 +539,13 @@ class Game:
 
             # New Stage Animations
             # if self.time_out == 400:  TODO: Challenging Music
-            if 100 < self.time_out <= 300:
+            if self.time_out == 350:
+                self.sounds['bonus'].play()
+            if 100 < self.time_out <= 330:
                 screen.blit(self.icon_challenging_hits,
                             (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
                              (screen_height - 7 * sizeMultiplier) / 2))
-            if 100 < self.time_out <= 266:
+            if 100 < self.time_out <= 260:
                 self.blit_score(self.player.challenge_hits,
                                 ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                                 + (5 - len(str(self.player.challenge_hits))) * 8 * sizeMultiplier
@@ -551,7 +555,7 @@ class Game:
                     screen.blit(self.icon_challenging_perfect,
                                 ((screen_width - 64 * sizeMultiplier) / 2,
                                  (screen_height - 7 * sizeMultiplier) / 2 - 16 * sizeMultiplier))
-            if 100 < self.time_out <= 233:
+            if 100 < self.time_out <= 230:
                 if self.player.challenge_hits >= 40:
                     screen.blit(self.icon_challenging_special_bonus,
                                 (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
@@ -560,12 +564,12 @@ class Game:
                     screen.blit(self.icon_challenging_bonus,
                                 ((screen_width - 39 * sizeMultiplier) / 2,
                                  (screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier))
-            if self.time_out == 200:
+            if self.time_out == 160:
                 if self.player.challenge_hits >= 40:
                     self.player.score += 10000
                 else:
                     self.player.score += self.player.challenge_hits * 100
-            if 100 < self.time_out <= 200:
+            if 100 < self.time_out <= 160:
                 if self.player.challenge_hits >= 40:
                     self.blit_score(10000,
                                     ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
@@ -577,6 +581,8 @@ class Game:
                                     + (5 - len(str(self.player.challenge_hits * 100))) * 8 * sizeMultiplier
                                     + 128 * sizeMultiplier,
                                     ((screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier), "blue")
+            if self.time_out == 60 and self.player.challenging_stage:
+                self.sounds['challenging'].play()
             if 10 < self.time_out <= 70:
                 if self.player.challenging_stage:
                     screen.blit(self.icon_challenging_stage,
@@ -591,14 +597,15 @@ class Game:
                                     + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.player.stage)),
                                     screen_height / 2 - 3.5 * sizeMultiplier, "blue")
             if self.time_out == 55:
-                self.sounds['stage_up'].play()  # TODO: Challenging Level Up Sound
+                if not self.player.challenging_stage:
+                    self.sounds['stage_up'].play()
                 self.player.stage = (self.player.stage + 1) % 256
             if self.time_out == 1:
                 self.spawn_enemies()
             if self.time_out == 0:
                 if len(self.player.enemies) == 0:  # Checks if stage progression is needed
                     if self.player.challenging_stage:
-                        self.time_out = 400
+                        self.time_out = 370
                     else:
                         self.time_out = 100
                     if (self.player.stage - 2) % 4 == 0:
@@ -752,27 +759,27 @@ class Game:
 
         if mode == "all":
             margin_right = 4 * sizeMultiplier
-            for i in range(math.floor(self.player.stage / 50)):
+            for i in range(floor(self.player.stage / 50)):
                 screen.blit(self.icon_badge50, (screen_width - margin_right - self.badge_sizes[5][0],
                                                 screen_height - 4 * sizeMultiplier - self.badge_sizes[5][1]))
                 margin_right += self.badge_sizes[5][0] + 1.2 * sizeMultiplier
-            for i in range(math.floor(self.player.stage % 50 / 30)):
+            for i in range(floor(self.player.stage % 50 / 30)):
                 screen.blit(self.icon_badge30, (screen_width - margin_right - self.badge_sizes[4][0],
                                                 screen_height - 4 * sizeMultiplier - self.badge_sizes[4][1]))
                 margin_right += self.badge_sizes[4][0] + 1.2 * sizeMultiplier
-            for i in range(math.floor(self.player.stage % 50 % 30 / 20)):
+            for i in range(floor(self.player.stage % 50 % 30 / 20)):
                 screen.blit(self.icon_badge20, (screen_width - margin_right - self.badge_sizes[3][0],
                                                 screen_height - 4 * sizeMultiplier - self.badge_sizes[3][1]))
                 margin_right += self.badge_sizes[3][0] + 1.2 * sizeMultiplier
-            for i in range(math.floor(self.player.stage % 50 % 30 % 20 / 10)):
+            for i in range(floor(self.player.stage % 50 % 30 % 20 / 10)):
                 screen.blit(self.icon_badge10, (screen_width - margin_right - self.badge_sizes[2][0],
                                                 screen_height - 4 * sizeMultiplier - self.badge_sizes[2][1]))
                 margin_right += self.badge_sizes[2][0] + 1.2 * sizeMultiplier
-            for i in range(math.floor(self.player.stage % 50 % 30 % 20 % 10 / 5)):
+            for i in range(floor(self.player.stage % 50 % 30 % 20 % 10 / 5)):
                 screen.blit(self.icon_badge5, (screen_width - margin_right - self.badge_sizes[1][0],
                                                screen_height - 4 * sizeMultiplier - self.badge_sizes[1][1]))
                 margin_right += self.badge_sizes[1][0] + 1.2 * sizeMultiplier
-            for i in range(math.floor(self.player.stage % 50 % 30 % 20 % 10 % 5)):
+            for i in range(floor(self.player.stage % 50 % 30 % 20 % 10 % 5)):
                 screen.blit(self.icon_badge1, (screen_width - margin_right - self.badge_sizes[0][0],
                                                screen_height - 4 * sizeMultiplier - self.badge_sizes[0][1]))
                 margin_right += self.badge_sizes[0][0] + 1.2 * sizeMultiplier
@@ -907,7 +914,7 @@ class Game:
                             ((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
                             + (4 - len(str(accuracy))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
                             (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "white")
-            self.blit_score(math.floor(accuracy_decimal),
+            self.blit_score(floor(accuracy_decimal),
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                             + 3 * 8 * sizeMultiplier + 128 * sizeMultiplier,
                             (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "white", True)
@@ -1065,14 +1072,14 @@ class Game:
 
 class Star:
     def __init__(self):
-        self.x_coord = random.randint(0, math.floor(screen_width))
-        self.y_coord = random.randint(0, math.floor(screen_height))
+        self.x_coord = randint(0, floor(screen_width))
+        self.y_coord = randint(0, floor(screen_height))
         self.max_brightness = 110
-        self.colour = [random.randint(0, self.max_brightness),
-                       random.randint(0, self.max_brightness), random.randint(0, self.max_brightness)]
-        self.display_colour = random.choice([True, False])
-        self.tick_delay = random.randint(0, 4)
-        self.velocity = random.randint(2, 8)
+        self.colour = [randint(0, self.max_brightness),
+                       randint(0, self.max_brightness), randint(0, self.max_brightness)]
+        self.display_colour = choice([True, False])
+        self.tick_delay = randint(0, 4)
+        self.velocity = randint(2, 8)
 
         self.image = pygame.Surface((1.2 * sizeMultiplier, 1.2 * sizeMultiplier))
 
@@ -1092,7 +1099,7 @@ class Star:
 
     def regenerate(self):
         self.y_coord = 0
-        self.x_coord = random.randint(0, math.floor(screen_width))
+        self.x_coord = randint(0, floor(screen_width))
 
 
 class Player:
@@ -1340,7 +1347,8 @@ class Enemy:
             ]
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
-        if random.randint(1, 1000) == 1 and self.game.player.ticking and self.ticking:
+        if (randint(1, 1000) == 1 and self.game.player.ticking and self.ticking
+                and not self.game.player.challenging_stage):
             self.shoot()
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
@@ -1382,7 +1390,7 @@ class Explosion:
 
     def tick(self):
         self.tick_delay += 1
-        self.animation = math.floor(self.tick_delay / self.animation_speed)
+        self.animation = floor(self.tick_delay / self.animation_speed)
         if self.animation > 4:
             self.game.explosions.remove(self)
         else:
