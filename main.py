@@ -1231,13 +1231,15 @@ class Player:
 
 
 class Missile:
-    def __init__(self, x_coord, y_coord, team="player", game=None):
+    def __init__(self, x_coord, y_coord, team="player", game=None, target_x=screen_width/2):
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.team = team
         self.game = game
         self.ticking = True
-
+        self.target = target_x
+        if team == "enemy":
+            self.arc = randint(15, 60)
         self.width = 3 * sizeMultiplier
         self.height = 8 * sizeMultiplier
 
@@ -1253,7 +1255,8 @@ class Missile:
                 if self.team == "player":
                     self.y_coord -= round(12 * sizeMultiplier)
                 elif self.team == "enemy":
-                    self.y_coord += round(8 * sizeMultiplier)
+                    self.y_coord += round(7 * sizeMultiplier)
+                    self.x_coord += round((self.target - self.x_coord) / self.arc)
 
             screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
@@ -1336,7 +1339,8 @@ class Enemy:
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
     def shoot(self):
-        self.game.player.enemy_missiles.append(Missile(self.x_coord, self.y_coord, "enemy", game=self.game))
+        self.game.player.enemy_missiles.append(Missile(self.x_coord, self.y_coord,
+                                                       "enemy", game=self.game, target_x=self.game.player.x_coord))
 
     def die(self):
         self.game.player.score += [[50, 100], [80, 160], [150, 400]][self.species][self.diving]
