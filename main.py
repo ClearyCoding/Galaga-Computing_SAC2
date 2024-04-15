@@ -1239,7 +1239,7 @@ class Missile:
         self.ticking = True
         self.target = target_x
         if team == "enemy":
-            self.arc = randint(15, 60)
+            self.arc = randint(15, 40)
         self.width = 3 * sizeMultiplier
         self.height = 8 * sizeMultiplier
 
