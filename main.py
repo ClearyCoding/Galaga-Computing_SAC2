@@ -1300,8 +1300,8 @@ class Enemy:
         self.species = species
         self.home_x = x_coord
         self.home_y = y_coord
-        self.x_coord = x_coord
-        self.y_coord = y_coord
+        self.x_coord = self.home_x
+        self.y_coord = self.home_y
         self.game = game
         self.diving = False
         self.ticking = ticking
