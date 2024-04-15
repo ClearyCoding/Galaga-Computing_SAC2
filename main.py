@@ -1,12 +1,12 @@
-# Galaga Semi-Faithful Recreation
-# By Alexander Cleary
-# Computing SAC #2
+#!/usr/bin/env python3
+#  Computing SAC #2: Galaga Semi-Faithful Recreation by Alexander Cleary
 
 import pygame
 import random
 import math
+import os
 
-fullscreen = True
+fullscreen = False
 
 # Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
 life_bonus = [20000, 60000, 60000]
@@ -14,6 +14,14 @@ initial_lives = 3
 
 # Terminates The Game When True
 end_game = False
+
+# Full Path To Assets Function
+mypath = os.path.dirname(os.path.realpath(__file__))
+
+
+def fetch(filename):
+    return os.path.join(mypath, filename)
+
 
 # Initialize Pygame
 pygame.init()
@@ -32,56 +40,56 @@ sizeMultiplier = screen_height / 320
 
 pygame.display.set_caption("Galaga - Computing 1/2 SAC #2")
 pygame.mouse.set_visible(False)
-window_icon = pygame.image.load('assets/icon.png')
+window_icon = pygame.image.load(fetch('assets/icon.png'))
 pygame.display.set_icon(window_icon)
 
 
 class Game:
     def __init__(self):
         self.sounds = {
-            'start': pygame.mixer.Sound('assets/sounds/start.mp3'),
-            'stage_up': pygame.mixer.Sound('assets/sounds/stage_up.mp3'),
-            'game_over': pygame.mixer.Sound('assets/sounds/game_over.mp3'),
-            'initials': pygame.mixer.Sound('assets/sounds/initials.mp3'),
+            'start': pygame.mixer.Sound(fetch('assets/sounds/start.wav')),
+            'stage_up': pygame.mixer.Sound(fetch('assets/sounds/stage_up.wav')),
+            'game_over': pygame.mixer.Sound(fetch('assets/sounds/game_over.wav')),
+            'initials': pygame.mixer.Sound(fetch('assets/sounds/initials.wav')),
 
-            'player_firing': pygame.mixer.Sound('assets/sounds/firing.mp3'),
-            'player_death': pygame.mixer.Sound('assets/sounds/death_player.mp3'),
-            'player_respawn': pygame.mixer.Sound('assets/sounds/respawn_player.mp3'),
-            'player_bonus_life': pygame.mixer.Sound('assets/sounds/bonus_life.mp3'),
+            'player_firing': pygame.mixer.Sound(fetch('assets/sounds/firing.wav')),
+            'player_death': pygame.mixer.Sound(fetch('assets/sounds/death_player.wav')),
+            'player_respawn': pygame.mixer.Sound(fetch('assets/sounds/respawn_player.wav')),
+            'player_bonus_life': pygame.mixer.Sound(fetch('assets/sounds/bonus_life.wav')),
 
-            'enemy_death_a': pygame.mixer.Sound('assets/sounds/enemy_death_a.mp3'),
-            'enemy_death_b': pygame.mixer.Sound('assets/sounds/enemy_death_b.mp3'),
-            'enemy_death_c': pygame.mixer.Sound('assets/sounds/enemy_death_c.mp3'),
-            'enemy_hurt': pygame.mixer.Sound('assets/sounds/enemy_hurt.mp3'),
+            'enemy_death_a': pygame.mixer.Sound(fetch('assets/sounds/enemy_death_a.wav')),
+            'enemy_death_b': pygame.mixer.Sound(fetch('assets/sounds/enemy_death_b.wav')),
+            'enemy_death_c': pygame.mixer.Sound(fetch('assets/sounds/enemy_death_c.wav')),
+            'enemy_hurt': pygame.mixer.Sound(fetch('assets/sounds/enemy_hurt.wav')),
         }
 
         self.sprites = {
-            'player': pygame.image.load('assets/player.png'),
-            'missile_player': pygame.image.load('assets/missile_player.png'),
-            'missile_enemy': pygame.image.load('assets/missile_enemy.png'),
+            'player': pygame.image.load(fetch('assets/player.png')),
+            'missile_player': pygame.image.load(fetch('assets/missile_player.png')),
+            'missile_enemy': pygame.image.load(fetch('assets/missile_enemy.png')),
             'player_explosion': [
-                pygame.image.load('assets/player_explosion0.png'),
-                pygame.image.load('assets/player_explosion1.png'),
-                pygame.image.load('assets/player_explosion2.png'),
-                pygame.image.load('assets/player_explosion3.png'),
-                pygame.image.load('assets/player_explosion3.png'),
+                pygame.image.load(fetch('assets/player_explosion0.png')),
+                pygame.image.load(fetch('assets/player_explosion1.png')),
+                pygame.image.load(fetch('assets/player_explosion2.png')),
+                pygame.image.load(fetch('assets/player_explosion3.png')),
+                pygame.image.load(fetch('assets/player_explosion3.png')),
             ],
             'enemy_explosion': [
-                pygame.image.load('assets/explosion0.png'),
-                pygame.image.load('assets/explosion1.png'),
-                pygame.image.load('assets/explosion2.png'),
-                pygame.image.load('assets/explosion3.png'),
-                pygame.image.load('assets/explosion4.png'),
+                pygame.image.load(fetch('assets/explosion0.png')),
+                pygame.image.load(fetch('assets/explosion1.png')),
+                pygame.image.load(fetch('assets/explosion2.png')),
+                pygame.image.load(fetch('assets/explosion3.png')),
+                pygame.image.load(fetch('assets/explosion4.png')),
             ],
             'enemy': {
-                '0a': pygame.image.load('assets/enemy0a.png'),
-                '0b': pygame.image.load('assets/enemy0b.png'),
-                '1a': pygame.image.load('assets/enemy1a.png'),
-                '1b': pygame.image.load('assets/enemy1b.png'),
-                '2a': pygame.image.load('assets/enemy2a.png'),
-                '2b': pygame.image.load('assets/enemy2b.png'),
-                '2c': pygame.image.load('assets/enemy2c.png'),
-                '2d': pygame.image.load('assets/enemy2d.png'),
+                '0a': pygame.image.load(fetch('assets/enemy0a.png')),
+                '0b': pygame.image.load(fetch('assets/enemy0b.png')),
+                '1a': pygame.image.load(fetch('assets/enemy1a.png')),
+                '1b': pygame.image.load(fetch('assets/enemy1b.png')),
+                '2a': pygame.image.load(fetch('assets/enemy2a.png')),
+                '2b': pygame.image.load(fetch('assets/enemy2b.png')),
+                '2c': pygame.image.load(fetch('assets/enemy2c.png')),
+                '2d': pygame.image.load(fetch('assets/enemy2d.png')),
             },
         }
         self.fontKey = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
@@ -91,13 +99,13 @@ class Game:
 
         self.font = {
             'white': [pygame.transform.scale(
-                pygame.image.load(f'assets/font/{i}.png'),
+                pygame.image.load(fetch(f'assets/font/{i}.png')),
                 (7 * sizeMultiplier, 7 * sizeMultiplier)) for i in self.fontKey],
             'yellow': [pygame.transform.scale(
-                pygame.image.load(f'assets/font/yellow/{i}.png'),
+                pygame.image.load(fetch(f'assets/font/yellow/{i}.png')),
                 (7 * sizeMultiplier, 7 * sizeMultiplier)) for i in self.fontKey],
             'blue': [pygame.transform.scale(
-                pygame.image.load(f'assets/font/blue/{i}.png'),
+                pygame.image.load(fetch(f'assets/font/blue/{i}.png')),
                 (7 * sizeMultiplier, 7 * sizeMultiplier)) for i in self.fontKey],
         }
 
@@ -146,7 +154,7 @@ class Game:
         else:
             self.local_high_score = 0
 
-        self.icon_lives = pygame.image.load('assets/gui/life.png')
+        self.icon_lives = pygame.image.load(fetch('assets/gui/life.png'))
         self.icon_lives = pygame.transform.scale(self.icon_lives, (13 * sizeMultiplier, 14 * sizeMultiplier))
         self.badge_sizes = [[7 * sizeMultiplier, 12 * sizeMultiplier],
                             [7 * sizeMultiplier, 14 * sizeMultiplier],
@@ -154,122 +162,122 @@ class Game:
                             [15 * sizeMultiplier, 16 * sizeMultiplier],
                             [15 * sizeMultiplier, 16 * sizeMultiplier],
                             [15 * sizeMultiplier, 16 * sizeMultiplier]]
-        self.icon_badge1 = pygame.image.load('assets/gui/badge1.png')
+        self.icon_badge1 = pygame.image.load(fetch('assets/gui/badge1.png'))
         self.icon_badge1 = pygame.transform.scale(self.icon_badge1, (self.badge_sizes[0][0], self.badge_sizes[0][1]))
-        self.icon_badge5 = pygame.image.load('assets/gui/badge5.png')
+        self.icon_badge5 = pygame.image.load(fetch('assets/gui/badge5.png'))
         self.icon_badge5 = pygame.transform.scale(self.icon_badge5, (self.badge_sizes[1][0], self.badge_sizes[1][1]))
-        self.icon_badge10 = pygame.image.load('assets/gui/badge10.png')
+        self.icon_badge10 = pygame.image.load(fetch('assets/gui/badge10.png'))
         self.icon_badge10 = pygame.transform.scale(self.icon_badge10, (self.badge_sizes[2][0], self.badge_sizes[2][1]))
-        self.icon_badge20 = pygame.image.load('assets/gui/badge20.png')
+        self.icon_badge20 = pygame.image.load(fetch('assets/gui/badge20.png'))
         self.icon_badge20 = pygame.transform.scale(self.icon_badge20, (self.badge_sizes[3][0], self.badge_sizes[3][1]))
-        self.icon_badge30 = pygame.image.load('assets/gui/badge30.png')
+        self.icon_badge30 = pygame.image.load(fetch('assets/gui/badge30.png'))
         self.icon_badge30 = pygame.transform.scale(self.icon_badge30, (self.badge_sizes[4][0], self.badge_sizes[4][1]))
-        self.icon_badge50 = pygame.image.load('assets/gui/badge50.png')
+        self.icon_badge50 = pygame.image.load(fetch('assets/gui/badge50.png'))
         self.icon_badge50 = pygame.transform.scale(self.icon_badge50, (self.badge_sizes[5][0], self.badge_sizes[5][1]))
         self.gui_flash = True
-        self.icon_1up = pygame.image.load('assets/gui/1up.png')
+        self.icon_1up = pygame.image.load(fetch('assets/gui/1up.png'))
         self.icon_1up = pygame.transform.scale(self.icon_1up, (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_2up = pygame.image.load('assets/gui/2up.png')
+        self.icon_2up = pygame.image.load(fetch('assets/gui/2up.png'))
         self.icon_2up = pygame.transform.scale(self.icon_2up, (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_high_score = pygame.image.load('assets/gui/high_score.png')
+        self.icon_high_score = pygame.image.load(fetch('assets/gui/high_score.png'))
         self.icon_high_score = pygame.transform.scale(self.icon_high_score, (79 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_stage = pygame.image.load('assets/gui/stage.png')
+        self.icon_stage = pygame.image.load(fetch('assets/gui/stage.png'))
         self.icon_stage = pygame.transform.scale(self.icon_stage, (38 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_game_over = pygame.image.load('assets/gui/game_over.png')
+        self.icon_game_over = pygame.image.load(fetch('assets/gui/game_over.png'))
         self.icon_game_over = pygame.transform.scale(self.icon_game_over, (67 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_results = pygame.image.load('assets/gui/results.png')
+        self.icon_results = pygame.image.load(fetch('assets/gui/results.png'))
         self.icon_results = pygame.transform.scale(self.icon_results, (72 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_hits = pygame.image.load('assets/gui/hits.png')
+        self.icon_hits = pygame.image.load(fetch('assets/gui/hits.png'))
         self.icon_hits = pygame.transform.scale(self.icon_hits, (128 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_shots = pygame.image.load('assets/gui/shots_fired.png')
+        self.icon_shots = pygame.image.load(fetch('assets/gui/shots_fired.png'))
         self.icon_shots = pygame.transform.scale(self.icon_shots, (128 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_accuracy = pygame.image.load('assets/gui/accuracy.png')
+        self.icon_accuracy = pygame.image.load(fetch('assets/gui/accuracy.png'))
         self.icon_accuracy = pygame.transform.scale(self.icon_accuracy, (128 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_percentage = pygame.image.load('assets/gui/percentage.png')
+        self.icon_percentage = pygame.image.load(fetch('assets/gui/percentage.png'))
         self.icon_percentage = pygame.transform.scale(self.icon_percentage, (7 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_underline = pygame.image.load('assets/gui/underline.png')
+        self.icon_underline = pygame.image.load(fetch('assets/gui/underline.png'))
         self.icon_underline = pygame.transform.scale(self.icon_underline,
                                                      (7 * sizeMultiplier, 1 * sizeMultiplier))
-        self.icon_start = pygame.image.load('assets/gui/start.png')
+        self.icon_start = pygame.image.load(fetch('assets/gui/start.png'))
         self.icon_start = pygame.transform.scale(self.icon_start, (37 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_player_1 = pygame.image.load('assets/gui/player_1.png')
+        self.icon_player_1 = pygame.image.load(fetch('assets/gui/player_1.png'))
         self.icon_player_1 = pygame.transform.scale(self.icon_player_1, (58 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_player_2 = pygame.image.load('assets/gui/player_2.png')
+        self.icon_player_2 = pygame.image.load(fetch('assets/gui/player_2.png'))
         self.icon_player_2 = pygame.transform.scale(self.icon_player_2, (58 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_ready = pygame.image.load('assets/gui/ready.png')
+        self.icon_ready = pygame.image.load(fetch('assets/gui/ready.png'))
         self.icon_ready = pygame.transform.scale(self.icon_ready, (37 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_push_start = pygame.image.load('assets/gui/push_start.png')
+        self.icon_push_start = pygame.image.load(fetch('assets/gui/push_start.png'))
         self.icon_push_start = pygame.transform.scale(self.icon_push_start, (135 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_first_bonus = pygame.image.load('assets/gui/bonus_1.png')
+        self.icon_first_bonus = pygame.image.load(fetch('assets/gui/bonus_1.png'))
         self.icon_first_bonus = pygame.transform.scale(self.icon_first_bonus,
                                                        (208 * sizeMultiplier, 16 * sizeMultiplier))
-        self.icon_second_bonus = pygame.image.load('assets/gui/bonus_2.png')
+        self.icon_second_bonus = pygame.image.load(fetch('assets/gui/bonus_2.png'))
         self.icon_second_bonus = pygame.transform.scale(self.icon_second_bonus,
                                                         (208 * sizeMultiplier, 16 * sizeMultiplier))
-        self.icon_third_bonus = pygame.image.load('assets/gui/bonus_3.png')
+        self.icon_third_bonus = pygame.image.load(fetch('assets/gui/bonus_3.png'))
         self.icon_third_bonus = pygame.transform.scale(self.icon_third_bonus,
                                                        (208 * sizeMultiplier, 16 * sizeMultiplier))
-        self.icon_free_play = pygame.image.load('assets/gui/free_play.png')
+        self.icon_free_play = pygame.image.load(fetch('assets/gui/free_play.png'))
         self.icon_free_play = pygame.transform.scale(self.icon_free_play, (64 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_initials = pygame.image.load('assets/gui/initials.png')
+        self.icon_initials = pygame.image.load(fetch('assets/gui/initials.png'))
         self.icon_initials = pygame.transform.scale(self.icon_initials, (164 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_top = pygame.image.load('assets/gui/top.png')
+        self.icon_top = pygame.image.load(fetch('assets/gui/top.png'))
         self.icon_top = pygame.transform.scale(self.icon_top, (88 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_score = pygame.image.load('assets/gui/score.png')
+        self.icon_score = pygame.image.load(fetch('assets/gui/score.png'))
         self.icon_score = pygame.transform.scale(self.icon_score, (39 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_name = pygame.image.load('assets/gui/name.png')
+        self.icon_name = pygame.image.load(fetch('assets/gui/name.png'))
         self.icon_name = pygame.transform.scale(self.icon_name, (31 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_top = pygame.image.load('assets/gui/top.png')
+        self.icon_top = pygame.image.load(fetch('assets/gui/top.png'))
         self.icon_top = pygame.transform.scale(self.icon_top, (88 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_first = pygame.image.load('assets/gui/1st.png')
+        self.icon_first = pygame.image.load(fetch('assets/gui/1st.png'))
         self.icon_first = pygame.transform.scale(self.icon_first, (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_second = pygame.image.load('assets/gui/2nd.png')
+        self.icon_second = pygame.image.load(fetch('assets/gui/2nd.png'))
         self.icon_second = pygame.transform.scale(self.icon_second, (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_third = pygame.image.load('assets/gui/3rd.png')
+        self.icon_third = pygame.image.load(fetch('assets/gui/3rd.png'))
         self.icon_third = pygame.transform.scale(self.icon_third, (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_fourth = pygame.image.load('assets/gui/4th.png')
+        self.icon_fourth = pygame.image.load(fetch('assets/gui/4th.png'))
         self.icon_fourth = pygame.transform.scale(self.icon_fourth, (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_fifth = pygame.image.load('assets/gui/5th.png')
+        self.icon_fifth = pygame.image.load(fetch('assets/gui/5th.png'))
         self.icon_fifth = pygame.transform.scale(self.icon_fifth, (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_first_yellow = pygame.image.load('assets/gui/1st_yellow.png')
+        self.icon_first_yellow = pygame.image.load(fetch('assets/gui/1st_yellow.png'))
         self.icon_first_yellow = pygame.transform.scale(self.icon_first_yellow,
                                                         (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_second_yellow = pygame.image.load('assets/gui/2nd_yellow.png')
+        self.icon_second_yellow = pygame.image.load(fetch('assets/gui/2nd_yellow.png'))
         self.icon_second_yellow = pygame.transform.scale(self.icon_second_yellow,
                                                          (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_third_yellow = pygame.image.load('assets/gui/3rd_yellow.png')
+        self.icon_third_yellow = pygame.image.load(fetch('assets/gui/3rd_yellow.png'))
         self.icon_third_yellow = pygame.transform.scale(self.icon_third_yellow,
                                                         (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_fourth_yellow = pygame.image.load('assets/gui/4th_yellow.png')
+        self.icon_fourth_yellow = pygame.image.load(fetch('assets/gui/4th_yellow.png'))
         self.icon_fourth_yellow = pygame.transform.scale(self.icon_fourth_yellow,
                                                          (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_fifth_yellow = pygame.image.load('assets/gui/5th_yellow.png')
+        self.icon_fifth_yellow = pygame.image.load(fetch('assets/gui/5th_yellow.png'))
         self.icon_fifth_yellow = pygame.transform.scale(self.icon_fifth_yellow,
                                                         (23 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_heroes = pygame.image.load('assets/gui/galactic_heroes.png')
+        self.icon_heroes = pygame.image.load(fetch('assets/gui/galactic_heroes.png'))
         self.icon_heroes = pygame.transform.scale(self.icon_heroes, (150 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_select_players = pygame.image.load('assets/gui/select_players.png')
+        self.icon_select_players = pygame.image.load(fetch('assets/gui/select_players.png'))
         self.icon_select_players = pygame.transform.scale(self.icon_select_players,
                                                           (108 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_1_player = pygame.image.load('assets/gui/one_player.png')
+        self.icon_1_player = pygame.image.load(fetch('assets/gui/one_player.png'))
         self.icon_1_player = pygame.transform.scale(self.icon_1_player, (58 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_2_players = pygame.image.load('assets/gui/two_players.png')
+        self.icon_2_players = pygame.image.load(fetch('assets/gui/two_players.png'))
         self.icon_2_players = pygame.transform.scale(self.icon_2_players, (66 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_pointer = pygame.image.load('assets/gui/pointer.png')
+        self.icon_pointer = pygame.image.load(fetch('assets/gui/pointer.png'))
         self.icon_pointer = pygame.transform.scale(self.icon_pointer, (8 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_challenging_stage = pygame.image.load('assets/gui/challenging_stage.png')
+        self.icon_challenging_stage = pygame.image.load(fetch('assets/gui/challenging_stage.png'))
         self.icon_challenging_stage = pygame.transform.scale(
             self.icon_challenging_stage, (129 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_challenging_perfect = pygame.image.load('assets/gui/challenge_perfect.png')
+        self.icon_challenging_perfect = pygame.image.load(fetch('assets/gui/challenge_perfect.png'))
         self.icon_challenging_perfect = pygame.transform.scale(
             self.icon_challenging_perfect, (64 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_challenging_bonus = pygame.image.load('assets/gui/challenge_bonus.png')
+        self.icon_challenging_bonus = pygame.image.load(fetch('assets/gui/challenge_bonus.png'))
         self.icon_challenging_bonus = pygame.transform.scale(
             self.icon_challenging_bonus, (39 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_challenging_special_bonus = pygame.image.load('assets/gui/challenge_special_bonus.png')
+        self.icon_challenging_special_bonus = pygame.image.load(fetch('assets/gui/challenge_special_bonus.png'))
         self.icon_challenging_special_bonus = pygame.transform.scale(
             self.icon_challenging_special_bonus, (100 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_challenging_hits = pygame.image.load('assets/gui/challenge_hits.png')
+        self.icon_challenging_hits = pygame.image.load(fetch('assets/gui/challenge_hits.png'))
         self.icon_challenging_hits = pygame.transform.scale(
             self.icon_challenging_hits, (111 * sizeMultiplier, 7 * sizeMultiplier))
 
@@ -621,12 +629,18 @@ class Game:
             # Draw Missiles
             for missile in self.player.missiles:
                 if missile.y_coord < 3 or missile.y_coord > screen_height:
-                    self.player.missiles.remove(missile)
+                    try:
+                        self.player.missiles.remove(missile)
+                    except ValueError:
+                        continue
                 else:
                     missile.tick()
             for missile in self.player.enemy_missiles:
                 if missile.y_coord < 3 or missile.y_coord > screen_height:
-                    self.player.enemy_missiles.remove(missile)
+                    try:
+                        self.player.enemy_missiles.remove(missile)
+                    except ValueError:
+                        continue
                 else:
                     missile.tick()
 
@@ -1200,7 +1214,10 @@ class Player:
                     self.width / 2 + missile.width / 2 and abs(
                         self.y_coord - missile.y_coord) <
                     self.height / 2 + missile.height / 2):
-                self.enemy_missiles.remove(missile)
+                try:
+                    self.enemy_missiles.remove(missile)
+                except ValueError:
+                    continue
                 if self.fighters <= 1:
                     self.die()
                 else:
@@ -1266,7 +1283,10 @@ class Missile:
                         enemy.die()
                     else:
                         self.game.sounds['enemy_hurt'].play()
-                    self.game.player.missiles.remove(self)
+                    try:
+                        self.game.player.missiles.remove(self)
+                    except ValueError:
+                        continue
             for missile in self.game.player.enemy_missiles:
                 if (abs(self.x_coord - missile.x_coord) <
                         self.width / 2 + missile.width / 2 and abs(
@@ -1277,8 +1297,8 @@ class Missile:
                     self.game.player.hits += 1
                     self.game.explosions.append(Explosion(
                         self.x_coord + self.width / 2, self.y_coord + self.height / 2, "enemy", self.game))
-                    self.game.player.enemy_missiles.remove(missile)
                     try:
+                        self.game.player.enemy_missiles.remove(missile)
                         self.game.player.missiles.remove(self)
                     except ValueError:
                         continue
@@ -1337,7 +1357,10 @@ class Enemy:
         self.game.explosions.append(Explosion(
             self.x_coord + self.width / 2, self.y_coord + self.height / 2, "enemy", self.game))
         if self in self.game.player.enemies:
-            self.game.player.enemies.remove(self)
+            try:
+                self.game.player.enemies.remove(self)
+            except ValueError:
+                return
 
 
 class Explosion:
