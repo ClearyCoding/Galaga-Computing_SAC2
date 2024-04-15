@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#  Computing SAC #2: Galaga Semi-Faithful Recreation by Alexander Cleary
+#  Computing SAC2: Galaga Semi-Faithful Recreation by Alexander Cleary
 
 import pygame
 import random
@@ -95,7 +95,7 @@ class Game:
         self.fontKey = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                         'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
                         '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                        'question_mark', 'decimal_point']
+                        'question_mark', 'decimal_point', 'percentage']
 
         self.font = {
             'white': [pygame.transform.scale(
@@ -193,8 +193,6 @@ class Game:
         self.icon_shots = pygame.transform.scale(self.icon_shots, (128 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_accuracy = pygame.image.load(fetch('assets/gui/accuracy.png'))
         self.icon_accuracy = pygame.transform.scale(self.icon_accuracy, (128 * sizeMultiplier, 7 * sizeMultiplier))
-        self.icon_percentage = pygame.image.load(fetch('assets/gui/percentage.png'))
-        self.icon_percentage = pygame.transform.scale(self.icon_percentage, (7 * sizeMultiplier, 7 * sizeMultiplier))
         self.icon_underline = pygame.image.load(fetch('assets/gui/underline.png'))
         self.icon_underline = pygame.transform.scale(self.icon_underline,
                                                      (7 * sizeMultiplier, 1 * sizeMultiplier))
@@ -909,7 +907,7 @@ class Game:
                             ((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
                             + (4 - len(str(accuracy))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
                             (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "white")
-            self.blit_score(round(accuracy_decimal),
+            self.blit_score(math.floor(accuracy_decimal),
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                             + 3 * 8 * sizeMultiplier + 128 * sizeMultiplier,
                             (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "white", True)
@@ -917,7 +915,7 @@ class Game:
                         (((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
                          + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
-            screen.blit(self.icon_percentage,
+            screen.blit(self.font['white'][38],
                         (((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                          + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
                          (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
