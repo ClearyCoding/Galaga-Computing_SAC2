@@ -805,37 +805,17 @@ class Game:
             x_coord += (len(score_str) - 5) * sizeMultiplier * 8
         for i, digit in enumerate(score_str):
             if digit.isdigit():
-                if colour == "white":
-                    screen.blit(self.font['white'][int(digit) + 26], (x_coord + i * 8 * sizeMultiplier, y_coord))
-                elif colour == "blue":
-                    screen.blit(self.font['blue'][int(digit) + 26], (x_coord + i * 8 * sizeMultiplier, y_coord))
-                elif colour == "yellow":
-                    screen.blit(self.font['yellow'][int(digit) + 26], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                screen.blit(self.font[colour][int(digit) + 26], (x_coord + i * 8 * sizeMultiplier, y_coord))
             elif digit == "?":
-                if colour == "blue":
-                    screen.blit(self.font['blue'][36], (x_coord + i * 8 * sizeMultiplier, y_coord))
-                elif colour == "white":
-                    screen.blit(self.font['white'][36], (x_coord + i * 8 * sizeMultiplier, y_coord))
-                elif colour == "yellow":
-                    screen.blit(self.font['yellow'][36], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                screen.blit(self.font[colour][36], (x_coord + i * 8 * sizeMultiplier, y_coord))
             elif digit == ".":
-                if colour == "blue":
-                    screen.blit(self.font['blue'][37], (x_coord + i * 8 * sizeMultiplier, y_coord))
-                elif colour == "yellow":
-                    screen.blit(self.font['yellow'][37], (x_coord + i * 8 * sizeMultiplier, y_coord))
-                elif colour == "white":
-                    screen.blit(self.font['white'][37], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                screen.blit(self.font[colour][37], (x_coord + i * 8 * sizeMultiplier, y_coord))
             else:
                 if digit.islower():
                     digit = ord(digit) - ord('a')
                 else:
                     digit = ord(digit) - ord('A')
-                if colour == "white":
-                    screen.blit(self.font['white'][int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
-                elif colour == "yellow":
-                    screen.blit(self.font['yellow'][int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
-                elif colour == "blue":
-                    screen.blit(self.font['blue'][int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                screen.blit(self.font[colour][int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
 
     def game_over(self):
         self.player.ticking = False
