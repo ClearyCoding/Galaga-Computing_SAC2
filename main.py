@@ -218,12 +218,8 @@ class Game:
         self.players = 1
         self.current_player = 1
         self.player1 = Player(self, 1)
-        if self.players == 2:
-            self.player2 = Player(self, 2)
-            self.player = [self.player1, self.player2][self.current_player - 1]
-        else:
-            self.player2 = None
-            self.player = self.player1
+        self.player2 = None
+        self.player = self.player1
         self.stars = []
         for star in range(0, round(266 * (screen_width / screen_height))):
             self.stars.append(Star())
