@@ -5,6 +5,7 @@ import pygame
 from random import randint, choice
 from math import floor
 from os import path
+from assets import arcadify
 
 fullscreen = False
 
@@ -26,7 +27,7 @@ def fetch(filename):
 # Initialize Pygame
 pygame.init()
 infoObject = pygame.display.Info()
-aspect_ratio = 7/9
+aspect_ratio = 7 / 9
 if fullscreen:
     screen_width = infoObject.current_w
     screen_height = infoObject.current_h
@@ -42,6 +43,8 @@ pygame.display.set_caption("Galaga - Computing 1/2 SAC #2")
 pygame.mouse.set_visible(False)
 window_icon = pygame.image.load(fetch('assets/icon.png'))
 pygame.display.set_icon(window_icon)
+
+arcadify = arcadify.Arcadify(screen, pygame)
 
 
 class Game:
@@ -93,22 +96,6 @@ class Game:
                 '2c': pygame.image.load(fetch('assets/enemy2c.png')),
                 '2d': pygame.image.load(fetch('assets/enemy2d.png')),
             },
-        }
-
-        self.fontKey = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
-                        'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-                        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-                        'question_mark', 'decimal_point', 'percentage']
-        self.font = {
-            'white': [pygame.transform.scale(
-                pygame.image.load(fetch(f'assets/font/{i}.png')),
-                (7 * sizeMultiplier, 7 * sizeMultiplier)) for i in self.fontKey],
-            'yellow': [pygame.transform.scale(
-                pygame.image.load(fetch(f'assets/font/yellow/{i}.png')),
-                (7 * sizeMultiplier, 7 * sizeMultiplier)) for i in self.fontKey],
-            'blue': [pygame.transform.scale(
-                pygame.image.load(fetch(f'assets/font/blue/{i}.png')),
-                (7 * sizeMultiplier, 7 * sizeMultiplier)) for i in self.fontKey],
         }
 
         self.gui = {
@@ -338,12 +325,14 @@ class Game:
                             [self.gui['first'], self.gui['second'], self.gui['third'],
                              self.gui['fourth'], self.gui['fifth']][i],
                             (screen_width / 2 - 90 * sizeMultiplier, screen_height - (120 - i * 20) * sizeMultiplier))
-                        self.blit_score(score,
+                        arcadify.render(score,
                                         screen_width / 2 - 55 * sizeMultiplier
                                         + (6 - len(str(score))) * 8 * sizeMultiplier,
-                                        screen_height - (120 - i * 20) * sizeMultiplier, "blue")
-                        self.blit_score(name, screen_width / 2 + 66 * sizeMultiplier,
-                                        screen_height - (120 - i * 20) * sizeMultiplier, "blue")
+                                        screen_height - (120 - i * 20) * sizeMultiplier,
+                                        "blue", sizeMultiplier, 999999, 2)
+                        arcadify.render(name, screen_width / 2 + 66 * sizeMultiplier,
+                                        screen_height - (120 - i * 20) * sizeMultiplier,
+                                        "blue", sizeMultiplier)
 
                 if self.gui_flash:
                     screen.blit(self.gui['push_start'],
@@ -429,10 +418,11 @@ class Game:
                 screen.blit(self.gui['stage'],
                             (screen_width / 2 - (38 * sizeMultiplier + 4 * 8 * sizeMultiplier) / 2,
                              screen_height / 2 - 3.5 * sizeMultiplier))
-                self.blit_score(start_stage,
+                arcadify.render(start_stage,
                                 screen_width / 2 - (38 * sizeMultiplier - 4 * 8 * sizeMultiplier) / 2
                                 + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(start_stage)),
-                                screen_height / 2 - 3.5 * sizeMultiplier, "blue")
+                                screen_height / 2 - 3.5 * sizeMultiplier,
+                                "blue", sizeMultiplier, 999999, 2)
             if stage_time_out == 55:
                 self.sounds['stage_up'].play()
                 start_stage += 1
@@ -522,11 +512,12 @@ class Game:
                             (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
                              (screen_height - 7 * sizeMultiplier) / 2))
             if 100 < self.time_out <= 260:
-                self.blit_score(self.player.challenge_hits,
+                arcadify.render(self.player.challenge_hits,
                                 ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                                 + (5 - len(str(self.player.challenge_hits))) * 8 * sizeMultiplier
                                 + 128 * sizeMultiplier,
-                                ((screen_height - 7 * sizeMultiplier) / 2), "blue")
+                                ((screen_height - 7 * sizeMultiplier) / 2),
+                                "blue", sizeMultiplier, 999999, 2)
                 if self.player.challenge_hits >= 40:
                     screen.blit(self.gui['challenging_perfect'],
                                 ((screen_width - 64 * sizeMultiplier) / 2,
@@ -547,16 +538,18 @@ class Game:
                     self.player.score += self.player.challenge_hits * 100
             if 100 < self.time_out <= 160:
                 if self.player.challenge_hits >= 40:
-                    self.blit_score(10000,
+                    arcadify.render(10000,
                                     ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                                     + 128 * sizeMultiplier,
-                                    ((screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier), "yellow")
+                                    ((screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier),
+                                    "yellow", sizeMultiplier, 999999, 2)
                 else:
-                    self.blit_score(self.player.challenge_hits * 100,
+                    arcadify.render(self.player.challenge_hits * 100,
                                     ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                                     + (5 - len(str(self.player.challenge_hits * 100))) * 8 * sizeMultiplier
                                     + 128 * sizeMultiplier,
-                                    ((screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier), "blue")
+                                    ((screen_height - 7 * sizeMultiplier) / 2 + 16 * sizeMultiplier),
+                                    "blue", sizeMultiplier, 999999, 2)
             if self.time_out == 60 and self.player.challenging_stage:
                 self.sounds['challenging'].play()
             if 10 < self.time_out <= 70:
@@ -568,10 +561,11 @@ class Game:
                     screen.blit(self.gui['stage'],
                                 (screen_width / 2 - (38 * sizeMultiplier + 4 * 8 * sizeMultiplier) / 2,
                                  screen_height / 2 - 3.5 * sizeMultiplier))
-                    self.blit_score(self.player.stage,
+                    arcadify.render(self.player.stage,
                                     screen_width / 2 - (38 * sizeMultiplier - 4 * 8 * sizeMultiplier) / 2
                                     + 38 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.player.stage)),
-                                    screen_height / 2 - 3.5 * sizeMultiplier, "blue")
+                                    screen_height / 2 - 3.5 * sizeMultiplier,
+                                    "blue", sizeMultiplier, 999999, 2)
             if self.time_out == 55:
                 if not self.player.challenging_stage:
                     self.sounds['stage_up'].play()
@@ -780,38 +774,16 @@ class Game:
         if not self.high_score_flash or self.gui_flash or mode == "limited" or self.local_high_score <= 0:
             screen.blit(self.gui['high_score'], (screen_width / 2 - (39.5 * sizeMultiplier), 4 * sizeMultiplier))
 
-        self.blit_score(
+        arcadify.render(
             self.score_1up, 12 * sizeMultiplier + sizeMultiplier * 8 * (6 - len(str(self.score_1up))),
-            4 * sizeMultiplier + 8 * sizeMultiplier)
+            4 * sizeMultiplier + 8 * sizeMultiplier, "white", sizeMultiplier, 999999, 2)
         if self.players == 2 or self.player.player_number == 2:
-            self.blit_score(
+            arcadify.render(
                 self.score_2up, screen_width - 12 * sizeMultiplier - sizeMultiplier * 8 * len(str(self.score_2up)),
-                4 * sizeMultiplier + 8 * sizeMultiplier)
-        self.blit_score(self.local_high_score,
+                4 * sizeMultiplier + 8 * sizeMultiplier, "white", sizeMultiplier, 999999, 2)
+        arcadify.render(self.local_high_score,
                         screen_width / 2 + sizeMultiplier * 8 * (3 - len(str(self.local_high_score))),
-                        4 * sizeMultiplier + 8 * sizeMultiplier)
-
-    def blit_score(self, score, x_coord, y_coord, colour="white", skip=False):
-        score_str = str(score)
-        if len(score_str) == 1 and not skip and isinstance(score, int):
-            score_str = "0" + score_str
-            x_coord -= 8 * sizeMultiplier
-        elif len(score_str) > 6 and isinstance(score, int):
-            score_str = "999999"
-            x_coord += (len(score_str) - 5) * sizeMultiplier * 8
-        for i, digit in enumerate(score_str):
-            if digit.isdigit():
-                screen.blit(self.font[colour][int(digit) + 26], (x_coord + i * 8 * sizeMultiplier, y_coord))
-            elif digit == "?":
-                screen.blit(self.font[colour][36], (x_coord + i * 8 * sizeMultiplier, y_coord))
-            elif digit == ".":
-                screen.blit(self.font[colour][37], (x_coord + i * 8 * sizeMultiplier, y_coord))
-            else:
-                if digit.islower():
-                    digit = ord(digit) - ord('a')
-                else:
-                    digit = ord(digit) - ord('A')
-                screen.blit(self.font[colour][int(digit)], (x_coord + i * 8 * sizeMultiplier, y_coord))
+                        4 * sizeMultiplier + 8 * sizeMultiplier, "white", sizeMultiplier, 999999, 2)
 
     def game_over(self):
         self.player.ticking = False
@@ -844,18 +816,20 @@ class Game:
             screen.blit(self.gui['shots'],
                         (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
                          (screen_height - 7 * sizeMultiplier) / 2))
-            self.blit_score(self.player.shotsFired,
+            arcadify.render(self.player.shotsFired,
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                             + (5 - len(str(self.player.shotsFired))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
-                            (screen_height - 7 * sizeMultiplier) / 2, "yellow")
+                            (screen_height - 7 * sizeMultiplier) / 2,
+                            "yellow", sizeMultiplier, 999999, 2)
 
             screen.blit(self.gui['hits'],
                         (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
                          (screen_height + 7 * sizeMultiplier) / 2 + 14 * sizeMultiplier))
-            self.blit_score(self.player.hits,
+            arcadify.render(self.player.hits,
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                             + (5 - len(str(self.player.hits))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
-                            (screen_height + 7 * sizeMultiplier) / 2 + 14 * sizeMultiplier, "yellow")
+                            (screen_height + 7 * sizeMultiplier) / 2 + 14 * sizeMultiplier,
+                            "yellow", sizeMultiplier, 999999, 2)
 
             screen.blit(self.gui['accuracy'],
                         (((screen_width - 128 * sizeMultiplier) - 7 * 8 * sizeMultiplier) / 2,
@@ -866,22 +840,26 @@ class Game:
                 accuracy = 0
             accuracy_decimal = accuracy * 10 % 10
             accuracy = round(accuracy)
-            self.blit_score(accuracy,
+            arcadify.render(accuracy,
                             ((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
                             + (4 - len(str(accuracy))) * 8 * sizeMultiplier + 128 * sizeMultiplier,
-                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "white")
-            self.blit_score(floor(accuracy_decimal),
+                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier,
+                            "white", sizeMultiplier, 999999, 2)
+            arcadify.render(floor(accuracy_decimal),
                             ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
                             + 3 * 8 * sizeMultiplier + 128 * sizeMultiplier,
-                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier, "white", True)
-            screen.blit(self.font['white'][37],
-                        (((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
-                         + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
-                         (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
-            screen.blit(self.font['white'][38],
-                        (((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
-                         + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
-                         (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier))
+                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier,
+                            "white", sizeMultiplier, 9)
+            arcadify.render(".",
+                            ((screen_width - 128 * sizeMultiplier) - 6 * 8 * sizeMultiplier) / 2
+                            + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
+                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier,
+                            "white", sizeMultiplier)
+            arcadify.render("%",
+                            ((screen_width - 128 * sizeMultiplier) - 3 * 8 * sizeMultiplier) / 2
+                            + 4 * 8 * sizeMultiplier + 128 * sizeMultiplier,
+                            (screen_height + 7 * sizeMultiplier) / 2 + 35 * sizeMultiplier,
+                            "white", sizeMultiplier)
 
             # Scores GUI
             self.tick_gui(mode="end")
@@ -959,18 +937,18 @@ class Game:
             screen.blit(self.gui['name'],
                         (screen_width / 2 + 49 * sizeMultiplier,
                          105 * sizeMultiplier))
-            self.blit_score(self.player.score, screen_width / 2 - 80 * sizeMultiplier +
+            arcadify.render(self.player.score, screen_width / 2 - 80 * sizeMultiplier +
                             (6 - len(str(self.player.score))) * 8 * sizeMultiplier,
-                            120 * sizeMultiplier, "blue")
+                            120 * sizeMultiplier, "blue", sizeMultiplier, 999999, 2)
             for i in range(3):
                 if i == selected_letter:
-                    self.blit_score(letter_selection[player_name[i]],
+                    arcadify.render(letter_selection[player_name[i]],
                                     screen_width / 2 + 80 * sizeMultiplier - (3 - i) * 8 * sizeMultiplier,
-                                    120 * sizeMultiplier, "white")
+                                    120 * sizeMultiplier, "white", sizeMultiplier)
                 else:
-                    self.blit_score(letter_selection[player_name[i]],
+                    arcadify.render(letter_selection[player_name[i]],
                                     screen_width / 2 + 80 * sizeMultiplier - (3 - i) * 8 * sizeMultiplier,
-                                    120 * sizeMultiplier, "blue")
+                                    120 * sizeMultiplier, "blue", sizeMultiplier)
 
             screen.blit(self.gui['score'],
                         (screen_width / 2 - 55 * sizeMultiplier, screen_height - 140 * sizeMultiplier))
@@ -988,23 +966,25 @@ class Game:
                 if name == self.player.name and score == self.player.score:
                     screen.blit(
                         [self.gui['first_yellow'], self.gui['second_yellow'], self.gui['third_yellow'],
-                         self.gui['fourth_yellow'], self.gui['fifth_yellow'],][i],
+                         self.gui['fourth_yellow'], self.gui['fifth_yellow'], ][i],
                         (screen_width / 2 - 90 * sizeMultiplier, screen_height - (120 - i * 20) * sizeMultiplier))
-                    self.blit_score(name, screen_width / 2 + 66 * sizeMultiplier,
-                                    screen_height - (120 - i * 20) * sizeMultiplier, "yellow")
-                    self.blit_score(score,
+                    arcadify.render(name, screen_width / 2 + 66 * sizeMultiplier,
+                                    screen_height - (120 - i * 20) * sizeMultiplier, "yellow", sizeMultiplier)
+                    arcadify.render(score,
                                     screen_width / 2 - 55 * sizeMultiplier + (6 - len(str(score))) * 8 * sizeMultiplier,
-                                    screen_height - (120 - i * 20) * sizeMultiplier, "yellow")
+                                    screen_height - (120 - i * 20) * sizeMultiplier,
+                                    "yellow", sizeMultiplier, 999999, 2)
                 else:
                     screen.blit(
                         [self.gui['first'], self.gui['second'], self.gui['third'],
-                         self.gui['fourth'], self.gui['fifth'],][i],
+                         self.gui['fourth'], self.gui['fifth'], ][i],
                         (screen_width / 2 - 90 * sizeMultiplier, screen_height - (120 - i * 20) * sizeMultiplier))
-                    self.blit_score(name, screen_width / 2 + 66 * sizeMultiplier,
-                                    screen_height - (120 - i * 20) * sizeMultiplier, "blue")
-                    self.blit_score(score,
+                    arcadify.render(name, screen_width / 2 + 66 * sizeMultiplier,
+                                    screen_height - (120 - i * 20) * sizeMultiplier, "blue", sizeMultiplier)
+                    arcadify.render(score,
                                     screen_width / 2 - 55 * sizeMultiplier + (6 - len(str(score))) * 8 * sizeMultiplier,
-                                    screen_height - (120 - i * 20) * sizeMultiplier, "blue")
+                                    screen_height - (120 - i * 20) * sizeMultiplier,
+                                    "blue", sizeMultiplier, 999999, 2)
 
             screen.blit(self.gui['top'],
                         ((screen_width - 88 * sizeMultiplier) / 2,
@@ -1158,10 +1138,10 @@ class Player:
 
     def move(self, direction):
         if direction == -1:
-            if self.x_coord > screen_width / 2 - screen_height * 7/18 + 6 * sizeMultiplier:
+            if self.x_coord > screen_width / 2 - screen_height * 7 / 18 + 6 * sizeMultiplier:
                 self.x_coord -= round(3.2 * sizeMultiplier)
         if direction == 1:
-            if self.x_coord < screen_width / 2 + screen_height * 7/18 - self.width - 6 * sizeMultiplier:
+            if self.x_coord < screen_width / 2 + screen_height * 7 / 18 - self.width - 6 * sizeMultiplier:
                 self.x_coord += round(3.2 * sizeMultiplier)
 
     def shoot(self):
@@ -1207,7 +1187,7 @@ class Player:
 
 
 class Missile:
-    def __init__(self, x_coord, y_coord, team="player", game=None, target_x=screen_width/2):
+    def __init__(self, x_coord, y_coord, team="player", game=None, target_x=screen_width / 2):
         self.x_coord = x_coord
         self.y_coord = y_coord
         self.team = team
