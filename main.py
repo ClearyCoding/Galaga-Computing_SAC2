@@ -7,6 +7,9 @@ from math import floor
 from os import path
 from assets import arcadify
 
+# THESE VARIABLES ARE TO BE EDITED BY MACHINE OPERATOR
+
+# Fullscreen Mode
 fullscreen = False
 
 # Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
@@ -14,6 +17,21 @@ life_bonus = [20000, 60000, 60000]
 
 # Initial Lives Each Player Will Receive
 initial_lives = 3
+
+# Key Bindings
+key_bindings = {
+    "Left": pygame.K_LEFT,
+    "Right": pygame.K_RIGHT,
+    "Up": pygame.K_UP,
+    "Down": pygame.K_DOWN,
+
+    "Shoot": pygame.K_SPACE,
+
+    "Select": pygame.K_RETURN,
+    "Quit": pygame.K_ESCAPE,
+}
+
+# END OPERATOR VARIABLES
 
 # Terminates The Game When True
 end_game = False
@@ -695,7 +713,7 @@ class Game:
                 self.last_interaction = self.current_tick
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
+                if event.key == key_bindings["Quit"]:
                     if self.score_1up > 0:
                         self.save_high_score("???", self.score_1up)
                     if self.score_2up > 0:
@@ -703,28 +721,28 @@ class Game:
                     end_game = True
 
                 # Shoot Button
-                if event.key == pygame.K_SPACE and missiles:
+                if event.key == key_bindings["Shoot"] and missiles:
                     if self.player.ticking:
                         self.player.shoot()
 
-                if event.key == pygame.K_RETURN and self.select_players:
+                if event.key == key_bindings["Select"] and self.select_players:
                     self.menu_open = False
-                if event.key == pygame.K_UP and self.select_players and self.players == 2:
+                if event.key == key_bindings["Up"] and self.select_players and self.players == 2:
                     self.players = self.players % 2 + 1
-                if event.key == pygame.K_DOWN and self.select_players and self.players == 1:
+                if event.key == key_bindings["Down"] and self.select_players and self.players == 1:
                     self.players = self.players % 2 + 1
 
-                if event.key == pygame.K_RETURN and mode == "menu":
+                if event.key == key_bindings["Select"] and mode == "menu":
                     self.select_players = True
-                if event.key == pygame.K_RETURN and mode == "save":
+                if event.key == key_bindings["Select"] and mode == "save":
                     self.save_score = True
-                if event.key == pygame.K_UP and mode == "save":
+                if event.key == key_bindings["Up"] and mode == "save":
                     self.save_action = "up"
-                if event.key == pygame.K_DOWN and mode == "save":
+                if event.key == key_bindings["Down"] and mode == "save":
                     self.save_action = "down"
-                if event.key == pygame.K_LEFT and mode == "save":
+                if event.key == key_bindings["Left"] and mode == "save":
                     self.save_action = "left"
-                if event.key == pygame.K_RIGHT and mode == "save":
+                if event.key == key_bindings["Right"] and mode == "save":
                     self.save_action = "right"
 
     def tick_gui(self, mode="all"):
