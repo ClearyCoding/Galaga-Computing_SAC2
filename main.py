@@ -11,6 +11,8 @@ fullscreen = False
 
 # Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
 life_bonus = [20000, 60000, 60000]
+
+# Initial Lives Each Player Will Receive
 initial_lives = 3
 
 # Terminates The Game When True
@@ -44,6 +46,7 @@ pygame.mouse.set_visible(False)
 window_icon = pygame.image.load(fetch('assets/icon.png'))
 pygame.display.set_icon(window_icon)
 
+# Arcadify Module Prints Text Onto Screen In Arcade Font. Find arcadify.py in assets.
 arcadify = arcadify.Arcadify(screen, pygame)
 
 
