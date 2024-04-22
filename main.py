@@ -20,15 +20,15 @@ initial_lives = 3
 
 # Key Bindings
 key_bindings = {
-    "Left": pygame.K_LEFT,
-    "Right": pygame.K_RIGHT,
-    "Up": pygame.K_UP,
-    "Down": pygame.K_DOWN,
+    "left": pygame.K_LEFT,
+    "right": pygame.K_RIGHT,
+    "up": pygame.K_UP,
+    "down": pygame.K_DOWN,
 
-    "Shoot": pygame.K_SPACE,
+    "shoot": pygame.K_SPACE,
 
-    "Select": pygame.K_RETURN,
-    "Quit": pygame.K_ESCAPE,
+    "select": pygame.K_RETURN,
+    "quit": pygame.K_ESCAPE,
 }
 
 # END OPERATOR VARIABLES
@@ -713,7 +713,7 @@ class Game:
                 self.last_interaction = self.current_tick
 
             if event.type == pygame.KEYDOWN:
-                if event.key == key_bindings["Quit"]:
+                if event.key == key_bindings["quit"]:
                     if self.score_1up > 0:
                         self.save_high_score("???", self.score_1up)
                     if self.score_2up > 0:
@@ -721,28 +721,28 @@ class Game:
                     end_game = True
 
                 # Shoot Button
-                if event.key == key_bindings["Shoot"] and missiles:
+                if event.key == key_bindings["shoot"] and missiles:
                     if self.player.ticking:
                         self.player.shoot()
 
-                if event.key == key_bindings["Select"] and self.select_players:
+                if event.key == key_bindings["select"] and self.select_players:
                     self.menu_open = False
-                if event.key == key_bindings["Up"] and self.select_players and self.players == 2:
+                if event.key == key_bindings["up"] and self.select_players and self.players == 2:
                     self.players = self.players % 2 + 1
-                if event.key == key_bindings["Down"] and self.select_players and self.players == 1:
+                if event.key == key_bindings["down"] and self.select_players and self.players == 1:
                     self.players = self.players % 2 + 1
 
-                if event.key == key_bindings["Select"] and mode == "menu":
+                if event.key == key_bindings["select"] and mode == "menu":
                     self.select_players = True
-                if event.key == key_bindings["Select"] and mode == "save":
+                if event.key == key_bindings["select"] and mode == "save":
                     self.save_score = True
-                if event.key == key_bindings["Up"] and mode == "save":
+                if event.key == key_bindings["up"] and mode == "save":
                     self.save_action = "up"
-                if event.key == key_bindings["Down"] and mode == "save":
+                if event.key == key_bindings["down"] and mode == "save":
                     self.save_action = "down"
-                if event.key == key_bindings["Left"] and mode == "save":
+                if event.key == key_bindings["left"] and mode == "save":
                     self.save_action = "left"
-                if event.key == key_bindings["Right"] and mode == "save":
+                if event.key == key_bindings["right"] and mode == "save":
                     self.save_action = "right"
 
     def tick_gui(self, mode="all"):
