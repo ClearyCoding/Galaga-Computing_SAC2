@@ -11,6 +11,7 @@ from assets import arcadify
 
 # Fullscreen Mode
 fullscreen = False
+maximised = False
 
 # Scores Where The Player Receives Extra Lives (First At, Second At, And Then Every)
 life_bonus = [20000, 60000, 60000]
@@ -53,9 +54,14 @@ if fullscreen:
     screen_height = infoObject.current_h
     screen = pygame.display.set_mode((screen_width, screen_height), pygame.FULLSCREEN)
 else:
-    screen_height = infoObject.current_h * 0.85  # TODO: Screen Resizing
-    screen_width = screen_height * aspect_ratio
-    screen = pygame.display.set_mode((screen_width, screen_height))
+    if maximised:
+        screen_height = infoObject.current_h
+        screen_width = infoObject.current_w
+        screen = pygame.display.set_mode((screen_width, screen_height))
+    else:
+        screen_height = infoObject.current_h * 0.85  # TODO: Screen Resizing
+        screen_width = screen_height * aspect_ratio
+        screen = pygame.display.set_mode((screen_width, screen_height))
 
 sizeMultiplier = screen_height / 320
 
