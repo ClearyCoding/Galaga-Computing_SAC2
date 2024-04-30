@@ -38,11 +38,11 @@ key_bindings = {
 end_game = False
 
 # Full Path To Assets Function
-mypath = path.dirname(path.realpath(__file__))
+my_path = path.dirname(path.realpath(__file__))
 
 
 def fetch(filename):
-    return path.join(mypath, filename)
+    return path.join(my_path, filename)
 
 
 # Initialize Pygame
