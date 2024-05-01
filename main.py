@@ -3,7 +3,7 @@
 
 import pygame
 from random import randint, choice
-from math import floor, sin, pi
+from math import floor, sin
 from os import path
 from assets import arcadify
 
@@ -114,14 +114,22 @@ class Game:
                 pygame.image.load(fetch('assets/sprites/explosion4.png')),
             ],
             'enemy': {
-                '0a': pygame.image.load(fetch('assets/sprites/enemy0a.png')),
-                '0b': pygame.image.load(fetch('assets/sprites/enemy0b.png')),
-                '1a': pygame.image.load(fetch('assets/sprites/enemy1a.png')),
-                '1b': pygame.image.load(fetch('assets/sprites/enemy1b.png')),
-                '2a': pygame.image.load(fetch('assets/sprites/enemy2a.png')),
-                '2b': pygame.image.load(fetch('assets/sprites/enemy2b.png')),
-                '2c': pygame.image.load(fetch('assets/sprites/enemy2c.png')),
-                '2d': pygame.image.load(fetch('assets/sprites/enemy2d.png')),
+                '0': {
+                    '0': pygame.image.load(fetch('assets/sprites/enemy0/0.png')),
+                    'animated': pygame.image.load(fetch('assets/sprites/enemy0/animated.png')),
+                },
+                '1': {
+                    '0': pygame.image.load(fetch('assets/sprites/enemy1/0.png')),
+                    'animated': pygame.image.load(fetch('assets/sprites/enemy1/animated.png')),
+                },
+                '2a': {
+                    '0': pygame.image.load(fetch('assets/sprites/enemy2a/0.png')),
+                    'animated': pygame.image.load(fetch('assets/sprites/enemy2a/animated.png')),
+                },
+                '2b': {
+                    '0': pygame.image.load(fetch('assets/sprites/enemy2b/0.png')),
+                    'animated': pygame.image.load(fetch('assets/sprites/enemy2b/animated.png')),
+                },
             },
         }
 
@@ -1301,6 +1309,7 @@ class Enemy:
         self.side_shift = self.column / abs(self.column) * 9 * sizeMultiplier
         self.y_coord = 40 * sizeMultiplier + (18 * sizeMultiplier * self.row)
         self.x_coord = screen_width / 2 - self.side_shift + (18 * sizeMultiplier * self.column)
+        self.rotation = '0'
         self.game = game
         self.diving = False
         self.ticking = ticking
@@ -1312,8 +1321,8 @@ class Enemy:
         self.height = sizeMultiplier * [10, 10, 16][self.species]
 
         self.image = self.game.sprites['enemy'][
-            ['0a', '1a', ['2a', '2c'][self.health < 2]][self.species]
-        ]
+            ['0', '1', ['2a', '2b'][self.health < 2]][self.species]
+        ][self.rotation]
         self.animated = False
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
 
@@ -1328,14 +1337,14 @@ class Enemy:
         if self.tick_delay % 15 == 0:
             self.animated = not self.animated
 
-        if self.animated:
+        if self.animated and self.rotation == '0':
             self.image = self.game.sprites['enemy'][
-                ['0b', '1b', ['2b', '2d'][self.health < 2]][self.species]
-            ]
+                ['0', '1', ['2a', '2b'][self.health < 2]][self.species]
+            ]['animated']
         else:
             self.image = self.game.sprites['enemy'][
-                ['0a', '1a', ['2a', '2c'][self.health < 2]][self.species]
-            ]
+                ['0', '1', ['2a', '2b'][self.health < 2]][self.species]
+            ][self.rotation]
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
         screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
