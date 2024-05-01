@@ -1128,7 +1128,7 @@ class Player:
 
         if self.enemies_in_formation:
             self.enemy_pulse = sin(self.enemy_pulse_tick) / 10 + 1.1
-            self.enemy_pulse_tick += 0.025
+            self.enemy_pulse_tick += 0.015
 
         if self.score >= life_bonus[0] and self.upgrades_reached == 0:
             self.upgrades_reached += 1
