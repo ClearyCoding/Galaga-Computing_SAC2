@@ -3,7 +3,7 @@
 
 import pygame
 from random import randint, choice
-from math import floor
+from math import floor, sin, pi
 from os import path
 from assets import arcadify
 
@@ -96,32 +96,32 @@ class Game:
         }
 
         self.sprites = {
-            'player': pygame.image.load(fetch('assets/player.png')),
-            'missile_player': pygame.image.load(fetch('assets/missile_player.png')),
-            'missile_enemy': pygame.image.load(fetch('assets/missile_enemy.png')),
+            'player': pygame.image.load(fetch('assets/sprites/player.png')),
+            'missile_player': pygame.image.load(fetch('assets/sprites/missile_player.png')),
+            'missile_enemy': pygame.image.load(fetch('assets/sprites/missile_enemy.png')),
             'player_explosion': [
-                pygame.image.load(fetch('assets/player_explosion0.png')),
-                pygame.image.load(fetch('assets/player_explosion1.png')),
-                pygame.image.load(fetch('assets/player_explosion2.png')),
-                pygame.image.load(fetch('assets/player_explosion3.png')),
-                pygame.image.load(fetch('assets/player_explosion3.png')),
+                pygame.image.load(fetch('assets/sprites/player_explosion0.png')),
+                pygame.image.load(fetch('assets/sprites/player_explosion1.png')),
+                pygame.image.load(fetch('assets/sprites/player_explosion2.png')),
+                pygame.image.load(fetch('assets/sprites/player_explosion3.png')),
+                pygame.image.load(fetch('assets/sprites/player_explosion3.png')),
             ],
             'enemy_explosion': [
-                pygame.image.load(fetch('assets/explosion0.png')),
-                pygame.image.load(fetch('assets/explosion1.png')),
-                pygame.image.load(fetch('assets/explosion2.png')),
-                pygame.image.load(fetch('assets/explosion3.png')),
-                pygame.image.load(fetch('assets/explosion4.png')),
+                pygame.image.load(fetch('assets/sprites/explosion0.png')),
+                pygame.image.load(fetch('assets/sprites/explosion1.png')),
+                pygame.image.load(fetch('assets/sprites/explosion2.png')),
+                pygame.image.load(fetch('assets/sprites/explosion3.png')),
+                pygame.image.load(fetch('assets/sprites/explosion4.png')),
             ],
             'enemy': {
-                '0a': pygame.image.load(fetch('assets/enemy0a.png')),
-                '0b': pygame.image.load(fetch('assets/enemy0b.png')),
-                '1a': pygame.image.load(fetch('assets/enemy1a.png')),
-                '1b': pygame.image.load(fetch('assets/enemy1b.png')),
-                '2a': pygame.image.load(fetch('assets/enemy2a.png')),
-                '2b': pygame.image.load(fetch('assets/enemy2b.png')),
-                '2c': pygame.image.load(fetch('assets/enemy2c.png')),
-                '2d': pygame.image.load(fetch('assets/enemy2d.png')),
+                '0a': pygame.image.load(fetch('assets/sprites/enemy0a.png')),
+                '0b': pygame.image.load(fetch('assets/sprites/enemy0b.png')),
+                '1a': pygame.image.load(fetch('assets/sprites/enemy1a.png')),
+                '1b': pygame.image.load(fetch('assets/sprites/enemy1b.png')),
+                '2a': pygame.image.load(fetch('assets/sprites/enemy2a.png')),
+                '2b': pygame.image.load(fetch('assets/sprites/enemy2b.png')),
+                '2c': pygame.image.load(fetch('assets/sprites/enemy2c.png')),
+                '2d': pygame.image.load(fetch('assets/sprites/enemy2d.png')),
             },
         }
 
@@ -610,6 +610,7 @@ class Game:
                 self.spawn_enemies()
             if self.time_out == 0:
                 if len(self.player.enemies) == 0:  # Checks if stage progression is needed
+                    self.player.enemies_in_formation = False
                     if self.player.challenging_stage:
                         self.time_out = 370
                     else:
@@ -693,16 +694,12 @@ class Game:
                 pygame.display.flip()
 
     def spawn_enemies(self, ticking=True):
-        key = [[3, 4, 5, 6], [1, 2, 3, 4, 5, 6, 7, 8], [1, 2, 3, 4, 5, 6, 7, 8],
-               [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]]
-        for row in range(5):
-            for column in range(10):
-                if column in key[row]:
-                    species = [2, 1, 1, 0, 0][row]
-                    y_coord = 40 * sizeMultiplier + (18 * sizeMultiplier * row)
-                    x_coord = (screen_width - 162 * sizeMultiplier) / 2 + (18 * sizeMultiplier * column)
-
-                    self.player.enemies.append(Enemy(species, x_coord, int(y_coord), self, ticking))
+        key = [[-2, -1, 1, 2], [-4, -3, -2, -1, 1, 2, 3, 4], [-4, -3, -2, -1, 1, 2, 3, 4],
+               [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5], [-5, -4, -3, -2, -1, 1, 2, 3, 4, 5]]
+        for row in range(len(key)):
+            for column in key[row]:
+                self.player.enemies.append(Enemy(column, row, self, ticking))
+        self.player.enemies_in_formation = True
 
     def check_events(self, missiles=False, mode="normal"):
         global end_game
@@ -1085,6 +1082,10 @@ class Player:
         self.player_number = player_number
         self.score = 0
         self.fighters = 1
+
+        self.enemies_in_formation = False
+        self.enemy_pulse = 1
+        self.enemy_pulse_tick = 4.71
         self.enemies = []
         self.enemy_missiles = []
 
@@ -1116,6 +1117,10 @@ class Player:
         global life_bonus
         self.tick_delay += 1
         self.width = self.fighter_width * self.fighters
+
+        if self.enemies_in_formation:
+            self.enemy_pulse = sin(self.enemy_pulse_tick) / 10 + 1.1
+            self.enemy_pulse_tick += 0.025
 
         if self.score >= life_bonus[0] and self.upgrades_reached == 0:
             self.upgrades_reached += 1
@@ -1288,12 +1293,14 @@ class Missile:
 
 
 class Enemy:
-    def __init__(self, species=0, x_coord=screen_width / 2, y_coord=60, game=None, ticking=True):
-        self.species = species
-        self.home_x = x_coord
-        self.home_y = y_coord
-        self.x_coord = self.home_x
-        self.y_coord = self.home_y
+    def __init__(self, column=0, row=0, game=None, ticking=True):
+        self.species = [2, 1, 1, 0, 0][row]
+        self.column = column
+        self.row = row
+
+        self.side_shift = self.column / abs(self.column) * 9 * sizeMultiplier
+        self.y_coord = 40 * sizeMultiplier + (18 * sizeMultiplier * self.row)
+        self.x_coord = screen_width / 2 - self.side_shift + (18 * sizeMultiplier * self.column)
         self.game = game
         self.diving = False
         self.ticking = ticking
@@ -1312,6 +1319,12 @@ class Enemy:
 
     def tick(self):
         self.tick_delay += 1
+
+        if not self.diving:
+            self.y_coord = 40 * sizeMultiplier + (18 * sizeMultiplier * self.row * self.game.player.enemy_pulse)
+            self.x_coord = screen_width / 2 - self.side_shift + (18 * sizeMultiplier * self.column *
+                                                                 self.game.player.enemy_pulse)
+
         if self.tick_delay % 15 == 0:
             self.animated = not self.animated
 
@@ -1325,10 +1338,11 @@ class Enemy:
             ]
 
         self.image = pygame.transform.scale(self.image, (self.width, self.height))
+        screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
+
         if (randint(1, 1000) == 1 and self.game.player.ticking and self.ticking
                 and not self.game.player.challenging_stage):
             self.shoot()
-        screen.blit(self.image, (self.x_coord - self.width / 2, self.y_coord - self.height / 2))
 
     def shoot(self):
         self.game.player.enemy_missiles.append(Missile(self.x_coord, self.y_coord,
