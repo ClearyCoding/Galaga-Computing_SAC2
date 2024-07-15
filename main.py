@@ -707,6 +707,7 @@ class Game:
         for row in range(len(key)):
             for column in key[row]:
                 self.player.enemies.append(Enemy(column, row, self, ticking))
+        self.player.enemy_pulse = 1
         self.player.enemies_in_formation = True
 
     def check_events(self, missiles=False, mode="normal"):
