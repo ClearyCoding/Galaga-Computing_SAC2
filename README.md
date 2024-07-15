@@ -16,8 +16,8 @@
     - pygame
     <br/>
     <br/>
-    <a href="https://github.com/ClearyCoding/Computing-SAC1/issues">Report Bug</a>
+    <a href="https://github.com/ClearyCoding/Computing-SAC2/issues">Report Bug</a>
     .
-    <a href="https://github.com/ClearyCoding/Computing-SAC1/issues">Request Feature</a>
+    <a href="https://github.com/ClearyCoding/Computing-SAC2/issues">Request Feature</a>
   </p>
 </p>
