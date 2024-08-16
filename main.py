@@ -344,15 +344,30 @@ class Game:
                     screen.blit(self.gui['third_bonus'],
                                 ((screen_width - 208 * sizeMultiplier) / 2,
                                  (screen_height - 16 * sizeMultiplier) / 2 + 64 * sizeMultiplier))
-                    arcadify.render(life_bonus[0], (screen_width + 66 * sizeMultiplier) / 2,
-                                    (screen_height - 8 * sizeMultiplier) / 2,
-                                    "yellow", sizeMultiplier, 99999, 2)
-                    arcadify.render(life_bonus[1], (screen_width + 66 * sizeMultiplier) / 2,
-                                    (screen_height - 8 * sizeMultiplier) / 2 + 32 * sizeMultiplier,
-                                    "yellow", sizeMultiplier, 99999, 2)
-                    arcadify.render(life_bonus[2], (screen_width + 66 * sizeMultiplier) / 2,
-                                    (screen_height - 8 * sizeMultiplier) / 2 + 64 * sizeMultiplier,
-                                    "yellow", sizeMultiplier, 99999, 2)
+                    if -10 < life_bonus[0] < 10:
+                        arcadify.render(life_bonus[0], (screen_width + 82 * sizeMultiplier) / 2,
+                                        (screen_height - 8 * sizeMultiplier) / 2,
+                                        "yellow", sizeMultiplier, 99999, 2)
+                    else:
+                        arcadify.render(life_bonus[0], (screen_width + 66 * sizeMultiplier) / 2,
+                                        (screen_height - 8 * sizeMultiplier) / 2,
+                                        "yellow", sizeMultiplier, 99999, 2)
+                    if -10 < life_bonus[1] < 10:
+                        arcadify.render(life_bonus[1], (screen_width + 82 * sizeMultiplier) / 2,
+                                        (screen_height - 8 * sizeMultiplier) / 2 + 32 * sizeMultiplier,
+                                        "yellow", sizeMultiplier, 99999, 2)
+                    else:
+                        arcadify.render(life_bonus[1], (screen_width + 66 * sizeMultiplier) / 2,
+                                        (screen_height - 8 * sizeMultiplier) / 2 + 32 * sizeMultiplier,
+                                        "yellow", sizeMultiplier, 99999, 2)
+                    if -10 < life_bonus[2] < 10:
+                        arcadify.render(life_bonus[2], (screen_width + 82 * sizeMultiplier) / 2,
+                                        (screen_height - 8 * sizeMultiplier) / 2 + 64 * sizeMultiplier,
+                                        "yellow", sizeMultiplier, 99999, 2)
+                    else:
+                        arcadify.render(life_bonus[2], (screen_width + 66 * sizeMultiplier) / 2,
+                                        (screen_height - 8 * sizeMultiplier) / 2 + 64 * sizeMultiplier,
+                                        "yellow", sizeMultiplier, 99999, 2)
                 elif menu_position == 1:
                     screen.blit(self.gui['top'], ((screen_width - 88 * sizeMultiplier) / 2, screen_height / 2))
                     screen.blit(self.gui['heroes'], (screen_width / 2 - 75 * sizeMultiplier,
